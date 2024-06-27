@@ -32,8 +32,9 @@ def change_wifi():
     # Restart the WiFi interface
     os.system('sudo wpa_cli -i wlan0 reconfigure')
 
-    flash('WiFi settings have been changed. Please wait a moment for the connection to be established.')
-    return redirect(url_for('home'))
+    flash('WiFi settings have been changed. Device will reboot now.')
+
+    os.system('sudo reboot')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=80)
