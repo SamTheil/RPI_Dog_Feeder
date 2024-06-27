@@ -44,44 +44,7 @@ systemctl status avahi-daemon --no-pager
 
 # Install required packages
 echo "Installing required packages..."
-apt-get install -y python3-flask python3-git python3-requests hostapd dnsmasq network-manager
-
-# Create hostapd configuration
-echo "Creating hostapd configuration..."
-cat <<EOT > /etc/hostapd/hostapd.conf
-interface=wlan0
-driver=nl80211
-ssid=dogfeeder
-hw_mode=g
-channel=7
-wmm_enabled=0
-macaddr_acl=0
-auth_algs=1
-ignore_broadcast_ssid=0
-wpa=2
-wpa_passphrase=password
-wpa_key_mgmt=WPA-PSK
-wpa_pairwise=TKIP
-rsn_pairwise=CCMP
-EOT
-
-echo "Updating hostapd defaults..."
-sed -i 's|#DAEMON_CONF="|"DAEMON_CONF="/etc/hostapd/hostapd.conf"|' /etc/default/hostapd
-
-# Create dnsmasq configuration
-echo "Creating dnsmasq configuration..."
-cat <<EOT > /etc/dnsmasq.conf
-interface=wlan0
-dhcp-range=192.168.4.2,192.168.4.20,255.255.255.0,24h
-EOT
-
-# Set static IP for wlan0
-echo "Configuring static IP for wlan0..."
-cat <<EOT >> /etc/dhcpcd.conf
-interface wlan0
-static ip_address=192.168.4.1/24
-nohook wpa_supplicant
-EOT
+apt-get install -y python3-flask python3-git python3-requests
 
 # Create the wifi_manager.py script
 echo "Creating wifi_manager.py script..."
