@@ -82,4 +82,39 @@ systemctl status flaskapp.service --no-pager
 echo "Reloading systemd manager configuration..."
 systemctl daemon-reload
 
+sudo tee /etc/dhcpcd.orig.conf << 'EOF'
+# Original dhcpcd.conf content
+# Example configuration:
+
+hostname
+clientid
+persistent
+option rapid_commit
+option domain_name_servers, domain_name, domain_search, host_name
+option classless_static_routes
+option interface_mtu
+require dhcp_server_identifier
+slaac private
+# Additional original configurations...
+EOF
+
+sudo tee /etc/dhcpcd.accesspoint.conf << 'EOF'
+# Modified dhcpcd.conf content for access point
+hostname
+clientid
+persistent
+option rapid_commit
+option domain_name_servers, domain_name, domain_search, host_name
+option classless_static_routes
+option interface_mtu
+require dhcp_server_identifier
+slaac private
+
+# Static IP configuration for access point
+interface wlan0
+    static ip_address=192.168.4.1/24
+    nohook wpa_supplicant
+# Additional access point configurations...
+EOF
+
 echo "Setup complete. You can now access your Flask app using http://feeder.local (after running the app)."

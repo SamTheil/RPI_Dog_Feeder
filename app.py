@@ -39,5 +39,19 @@ def change_wifi():
 
     os.system('sudo reboot')
 
+@app.route('/enable_ap', methods=['POST'])
+def enable_ap():
+    os.system('sudo ./accessPoint_enable.sh')
+    flash('Access Point enabled. Device will reboot now.')
+    time.sleep(1)
+    return redirect(url_for('home'))
+
+@app.route('/disable_ap', methods=['POST'])
+def disable_ap():
+    os.system('sudo ./accessPoint_disable.sh')
+    flash('Access Point disabled. Device will reboot now.')
+    time.sleep(1)
+    return redirect(url_for('home'))
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=80)
