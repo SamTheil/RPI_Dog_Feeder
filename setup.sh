@@ -79,4 +79,16 @@ systemctl status flaskapp.service --no-pager
 echo "Reloading systemd manager configuration..."
 systemctl daemon-reload
 
+# Change hotspot SSID and password
+HOTSPOT_SSID="YourNewSSID"
+HOTSPOT_PASSWORD="YourNewPassword"
+HOSTAPD_CONF="/etc/hostapd/hostapd.conf"
+
+echo "Changing hotspot SSID and password..."
+sed -i "s/^ssid=.*/ssid=${HOTSPOT_SSID}/" "$HOSTAPD_CONF"
+sed -i "s/^wpa_passphrase=.*/wpa_passphrase=${HOTSPOT_PASSWORD}/" "$HOSTAPD_CONF"
+
+echo "Restarting hostapd service..."
+systemctl restart hostapd
+
 echo "Setup complete. You can now access your Flask app using http://feeder.local (after running the app)."
