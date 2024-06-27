@@ -75,6 +75,8 @@ systemctl enable flaskapp.service
 echo "Starting Flask app service..."
 systemctl start flaskapp.service
 
+sudo apt-get install hostapd dnsmasq
+
 # Check the status of the Flask app service
 systemctl status flaskapp.service --no-pager
 
@@ -116,5 +118,29 @@ interface wlan0
     nohook wpa_supplicant
 # Additional access point configurations...
 EOF
+
+sudo tee /etc/hostapd/hostapd.conf << 'EOF'
+interface=wlan0
+driver=nl80211
+ssid=dogfeeder
+hw_mode=g
+channel=7
+wmm_enabled=0
+macaddr_acl=0
+auth_algs=1
+ignore_broadcast_ssid=0
+wpa=2
+wpa_passphrase=password
+wpa_key_mgmt=WPA-PSK
+rsn_pairwise=CCMP
+EOF
+
+sudo tee /etc/dnsmasq.conf << 'EOF'
+interface=wlan0
+dhcp-range=192.168.4.2,192.168.4.20,255.255.255.0,24h
+EOF
+
+sudo sed -i 's|#DAEMON_CONF="|DAEMON_CONF="/etc/hostapd/hostapd.conf|' /etc/default/hostapd
+
 
 echo "Setup complete. You can now access your Flask app using http://feeder.local (after running the app)."

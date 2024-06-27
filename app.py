@@ -41,6 +41,7 @@ def change_wifi():
 
 @app.route('/enable_ap', methods=['POST'])
 def enable_ap():
+    os.system('chmod +x accessPoint_enable.sh')
     os.system('sudo ./accessPoint_enable.sh')
     flash('Access Point enabled. Device will reboot now.')
     time.sleep(1)
@@ -48,6 +49,7 @@ def enable_ap():
 
 @app.route('/disable_ap', methods=['POST'])
 def disable_ap():
+    os.system('chmod +x accessPoint_disable.sh')
     os.system('sudo ./accessPoint_disable.sh')
     flash('Access Point disabled. Device will reboot now.')
     time.sleep(1)
