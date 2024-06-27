@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 import os
+import time
 
 app = Flask(__name__)
 app.secret_key = 'supersecretkey'
@@ -33,6 +34,8 @@ def change_wifi():
     os.system('sudo wpa_cli -i wlan0 reconfigure')
 
     flash('WiFi settings have been changed. Device will reboot now.')
+
+    time.sleep(1)
 
     os.system('sudo reboot')
 
