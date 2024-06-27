@@ -46,40 +46,6 @@ systemctl status avahi-daemon --no-pager
 echo "Installing required packages..."
 apt-get install -y python3-flask python3-git python3-requests
 
-# Create the wifi_manager.py script
-echo "Creating wifi_manager.py script..."
-cat <<EOT > /home/pizero/Dog_Feeder_V2/wifi_manager.py
-import os
-import time
-
-def check_wifi_connection():
-    result = os.system("ping -c 1 google.com > /dev/null 2>&1")
-    return result == 0
-
-def start_access_point():
-    os.system("sudo systemctl stop NetworkManager")
-    os.system("sudo systemctl start hostapd")
-    os.system("sudo systemctl start dnsmasq")
-
-def stop_access_point():
-    os.system("sudo systemctl stop hostapd")
-    os.system("sudo systemctl stop dnsmasq")
-    os.system("sudo systemctl start NetworkManager")
-
-def main():
-    while True:
-        if check_wifi_connection():
-            print("Connected to WiFi.")
-            stop_access_point()
-        else:
-            print("Not connected to WiFi. Starting access point.")
-            start_access_point()
-        time.sleep(60)
-
-if __name__ == '__main__':
-    main()
-EOT
-
 # Create systemd service for Flask app
 echo "Creating systemd service for Flask app..."
 cat <<EOT > /etc/systemd/system/flaskapp.service
@@ -89,8 +55,8 @@ After=network.target
 
 [Service]
 User=root
-WorkingDirectory=/home/pizero/Dog_Feeder_V2
-ExecStart=/usr/bin/python3 /home/pizero/Dog_Feeder_V2/app.py
+WorkingDirectory=/home/pizero/RPI_Dog_Feeder
+ExecStart=/usr/bin/python3 /home/pizero/RPI_Dog_Feeder/app.py
 Restart=always
 
 [Install]
@@ -112,35 +78,8 @@ systemctl start flaskapp.service
 # Check the status of the Flask app service
 systemctl status flaskapp.service --no-pager
 
-# Create systemd service for WiFi manager
-echo "Creating systemd service for WiFi manager..."
-cat <<EOT > /etc/systemd/system/wifimanager.service
-[Unit]
-Description=WiFi Manager
-After=network.target
-
-[Service]
-User=root
-ExecStart=/usr/bin/python3 /home/pizero/Dog_Feeder_V2/wifi_manager.py
-Restart=always
-
-[Install]
-WantedBy=multi-user.target
-EOT
-
 # Reload systemd manager configuration
 echo "Reloading systemd manager configuration..."
 systemctl daemon-reload
-
-# Enable the WiFi manager service to start on boot
-echo "Enabling WiFi manager service to start on boot..."
-systemctl enable wifimanager.service
-
-# Start the WiFi manager service immediately
-echo "Starting WiFi manager service..."
-systemctl start wifimanager.service
-
-# Check the status of the WiFi manager service
-systemctl status wifimanager.service --no-pager
 
 echo "Setup complete. You can now access your Flask app using http://feeder.local (after running the app)."
