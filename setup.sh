@@ -29,11 +29,8 @@ apt-get install -y avahi-daemon avahi-utils
 # Configure avahi-daemon
 echo "Configuring avahi-daemon..."
 AVAHI_CONF="/etc/avahi/avahi-daemon.conf"
-if grep -q "host-name=" "$AVAHI_CONF"; then
-    sed -i 's/^host-name=.*/host-name=feeder/' "$AVAHI_CONF"
-else
-    sed -i '/\[server\]/a host-name=feeder' "$AVAHI_CONF"
-fi
+sed -i '/^host-name=/d' "$AVAHI_CONF"
+sed -i '/\[server\]/a host-name=feeder' "$AVAHI_CONF"
 
 # Restart avahi-daemon
 echo "Restarting avahi-daemon..."
