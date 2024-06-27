@@ -2,7 +2,7 @@
 
 ## Raspberry Pi Repo Setup
 
-Flash Raspbian onto RPI and configure as a headless device
+Flash HotSpotOS onto RPI and configure as a headless device
 
 ### 1. Install Git
 ```
