@@ -10,7 +10,8 @@ servo = servoclass()
 
 #Example activation of servo
 servo.SetServoAngle(-1)
-servo.StopServoTorque(0)
+time.sleep(2)
+servo.StopServoTorque()
 
 @app.route('/')
 def home():
