@@ -17,6 +17,10 @@ def wifi_settings():
 def settings():
     return render_template('settings.html')
 
+@app.route('/admin')
+def admin():
+    return render_template('admin.html')
+
 @app.route('/change_wifi', methods=['POST'])
 def change_wifi():
     ssid = request.form['ssid']
