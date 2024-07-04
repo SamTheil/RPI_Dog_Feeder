@@ -9,14 +9,6 @@ app.secret_key = 'supersecretkey'
 def home():
     return render_template('index.html')
 
-@app.route('/gear')
-def gear():
-    return render_template('gear.html')
-
-@app.route('/wifi')
-def wifi():
-    return render_template('wifi.html')
-
 @app.route('/change_wifi', methods=['POST'])
 def change_wifi():
     ssid = request.form['ssid']
@@ -46,6 +38,22 @@ def change_wifi():
     time.sleep(1)
 
     os.system('sudo reboot')
+
+@app.route('/enable_ap', methods=['POST'])
+def enable_ap():
+    os.system('chmod +x accessPoint_enable.sh')
+    os.system('sudo ./accessPoint_enable.sh')
+    flash('Access Point enabled. Device will reboot now.')
+    time.sleep(1)
+    return redirect(url_for('home'))
+
+@app.route('/disable_ap', methods=['POST'])
+def disable_ap():
+    os.system('chmod +x accessPoint_disable.sh')
+    os.system('sudo ./accessPoint_disable.sh')
+    flash('Access Point disabled. Device will reboot now.')
+    time.sleep(1)
+    return redirect(url_for('home'))
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=80)
