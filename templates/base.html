@@ -5,6 +5,9 @@
     <!-- Include Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
+        body{
+            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+        }
         .header {
             display: flex;
             justify-content: center; /* Centers the icons horizontally */
@@ -15,9 +18,28 @@
             margin-left: 50px;
             margin-right: 50px;
         }
+        
         a {
             color: inherit; /* Ensures links do not change color */
             text-decoration: none; /* Removes underline from icons */
+        }
+
+        #menu{
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: auto;
+            padding: 20px;
+            box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+        }
+        
+        .centered-container {
+            display: flex;
+            justify-content: center; /* Centers items horizontally */
+            align-items: center; /* Centers items vertically */
+            height: auto;
         }
     </style>
 </head>
