@@ -46,6 +46,12 @@ systemctl status avahi-daemon --no-pager
 echo "Installing required packages..."
 apt-get install -y python3-flask python3-git python3-requests
 
+# Install and enable pigpiod service
+echo "Installing and enabling pigpiod service..."
+sudo apt-get install -y pigpio
+sudo systemctl enable pigpiod
+sudo systemctl start pigpiod
+
 # Create systemd service for Flask app
 echo "Creating systemd service for Flask app..."
 cat <<EOT > /etc/systemd/system/flaskapp.service
