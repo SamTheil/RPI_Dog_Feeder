@@ -1,12 +1,9 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>My Raspberry Pi Website</title>
-</head>
-<body>
+{% extends 'base.html' %}
+
+{% block content %}
     <h1>Welcome to my Raspberry Pi website!</h1>
     <p>This is a simple Flask web application running on a Raspberry Pi.</p>
-    
+
     <form action="/change_wifi" method="post">
         <label for="ssid">WiFi SSID:</label>
         <input type="text" id="ssid" name="ssid" required><br><br>
@@ -14,5 +11,4 @@
         <input type="password" id="password" name="password" required><br><br>
         <input type="submit" value="Change WiFi">
     </form>
-</body>
-</html>
+{% endblock %}
