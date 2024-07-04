@@ -11,17 +11,21 @@
             padding: 60px; /* Provides padding around the icons */
             font-size: 45px; /* Increases the size of the icons */
         }
-        .fas{
-          margin-left: 50px;
-          margin-right: 50px;
+        .fas {
+            margin-left: 50px;
+            margin-right: 50px;
+        }
+        a {
+            color: inherit; /* Ensures links do not change color */
+            text-decoration: none; /* Removes underline from icons */
         }
     </style>
 </head>
 <body>
     <div class="header">
-        <i class="fas fa-cog"></i> <!-- Gear icon -->
-        <i class="fas fa-home" style="margin: 0 20px;"></i> <!-- Home icon with horizontal margins -->
-        <i class="fas fa-wifi"></i> <!-- WiFi icon -->
+        <a href="/settings"><i class="fas fa-cog"></i></a> <!-- Gear icon -->
+        <a href="/"><i class="fas fa-home" style="margin: 0 20px;"></i></a> <!-- Home icon with horizontal margins -->
+        <a href="/wifi"><i class="fas fa-wifi"></i></a> <!-- WiFi icon -->
     </div>
 
     {% block content %}

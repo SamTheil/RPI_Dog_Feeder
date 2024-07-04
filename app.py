@@ -9,6 +9,14 @@ app.secret_key = 'supersecretkey'
 def home():
     return render_template('index.html')
 
+@app.route('/wifi')
+def wifi_settings():
+    return render_template('wifi.html')
+
+@app.route('/settings')
+def settings():
+    return render_template('settings.html')
+
 @app.route('/change_wifi', methods=['POST'])
 def change_wifi():
     ssid = request.form['ssid']
