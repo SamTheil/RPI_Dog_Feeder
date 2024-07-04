@@ -91,10 +91,18 @@ HOTSPOT_PASSWORD="feeder"
 HOSTAPD_CONF="/etc/hostapd/hostapd.conf"
 
 echo "Changing hotspot SSID and password..."
-sed -i "s/^ssid=.*/ssid=${HOTSPOT_SSID}/" "$HOSTAPD_CONF"
-sed -i "s/^wpa_passphrase=.*/wpa_passphrase=${HOTSPOT_PASSWORD}/" "$HOSTAPD_CONF"
+if [ -f "$HOSTAPD_CONF" ]; then
+    sed -i "s/^ssid=.*/ssid=${HOTSPOT_SSID}/" "$HOSTAPD_CONF"
+    sed -i "s/^wpa_passphrase=.*/wpa_passphrase=${HOTSPOT_PASSWORD}/" "$HOSTAPD_CONF"
 
-echo "Restarting hostapd service..."
-systemctl restart hostapd
+    echo "Restarting hostapd service..."
+    systemctl restart hostapd
+    if [ $? -ne 0 ]; then
+        echo "Failed to restart hostapd service. Check the status for more details."
+        systemctl status hostapd.service --no-pager
+    fi
+else
+    echo "hostapd configuration file not found at $HOSTAPD_CONF. Skipping SSID and password change."
+fi
 
 echo "Setup complete. You can now access your Flask app using http://feeder.local (after running the app)."
