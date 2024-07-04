@@ -39,21 +39,18 @@ sed -i '/\[server\]/a host-name=feeder' "$AVAHI_CONF"
 echo "Restarting avahi-daemon..."
 systemctl restart avahi-daemon
 
-sudo apt update
-sudo apt install python3-pip
-
 # Check avahi-daemon status
 systemctl status avahi-daemon --no-pager
 
 # Install required packages
 echo "Installing required packages..."
-apt-get install -y python3-flask python3-git python3-requests
+apt-get install -y python3-flask python3-git python3-requests python3-pip
 
 # Install and enable pigpiod service
 echo "Installing and enabling pigpiod service..."
-sudo apt-get install -y pigpio
-sudo systemctl enable pigpiod
-sudo systemctl start pigpiod
+apt-get install -y pigpio
+systemctl enable pigpiod
+systemctl start pigpiod
 pip3 install pigpio
 
 # Create systemd service for Flask app
@@ -87,16 +84,6 @@ systemctl start flaskapp.service
 
 # Check the status of the Flask app service
 systemctl status flaskapp.service --no-pager
-
-# Install and enable pigpiod service
-echo "Installing and enabling pigpiod service..."
-apt-get install -y pigpio
-systemctl enable pigpiod
-systemctl start pigpiod
-
-# Reload systemd manager configuration
-echo "Reloading systemd manager configuration..."
-systemctl daemon-reload
 
 # Change hotspot SSID and password
 HOTSPOT_SSID="feeder"
