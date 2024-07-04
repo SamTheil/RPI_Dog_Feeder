@@ -10,9 +10,6 @@ fi
 echo "Setting hostname to 'feeder'..."
 echo "feeder" > /etc/hostname
 
-git config merge.ours.name "Keep ours merge"
-git config merge.ours.driver true
-
 # Update /etc/hosts
 echo "Updating /etc/hosts..."
 sed -i '/127.0.1.1/d' /etc/hosts
@@ -44,14 +41,7 @@ systemctl status avahi-daemon --no-pager
 
 # Install required packages
 echo "Installing required packages..."
-apt-get install -y python3-flask python3-git python3-requests python3-pip
-
-# Install and enable pigpiod service
-echo "Installing and enabling pigpiod service..."
-apt-get install -y pigpio
-systemctl enable pigpiod
-systemctl start pigpiod
-pip3 install pigpio
+apt-get install -y python3-flask python3-git python3-requests
 
 # Create systemd service for Flask app
 echo "Creating systemd service for Flask app..."
@@ -85,24 +75,20 @@ systemctl start flaskapp.service
 # Check the status of the Flask app service
 systemctl status flaskapp.service --no-pager
 
+# Reload systemd manager configuration
+echo "Reloading systemd manager configuration..."
+systemctl daemon-reload
+
 # Change hotspot SSID and password
-HOTSPOT_SSID="feeder"
-HOTSPOT_PASSWORD="feeder"
+HOTSPOT_SSID="YourNewSSID"
+HOTSPOT_PASSWORD="YourNewPassword"
 HOSTAPD_CONF="/etc/hostapd/hostapd.conf"
 
 echo "Changing hotspot SSID and password..."
-if [ -f "$HOSTAPD_CONF" ]; then
-    sed -i "s/^ssid=.*/ssid=${HOTSPOT_SSID}/" "$HOSTAPD_CONF"
-    sed -i "s/^wpa_passphrase=.*/wpa_passphrase=${HOTSPOT_PASSWORD}/" "$HOSTAPD_CONF"
+sed -i "s/^ssid=.*/ssid=${HOTSPOT_SSID}/" "$HOSTAPD_CONF"
+sed -i "s/^wpa_passphrase=.*/wpa_passphrase=${HOTSPOT_PASSWORD}/" "$HOSTAPD_CONF"
 
-    echo "Restarting hostapd service..."
-    systemctl restart hostapd
-    if [ $? -ne 0 ]; then
-        echo "Failed to restart hostapd service. Check the status for more details."
-        systemctl status hostapd.service --no-pager
-    fi
-else
-    echo "hostapd configuration file not found at $HOSTAPD_CONF. Skipping SSID and password change."
-fi
+echo "Restarting hostapd service..."
+systemctl restart hostapd
 
 echo "Setup complete. You can now access your Flask app using http://feeder.local (after running the app)."
