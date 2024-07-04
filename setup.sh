@@ -89,8 +89,8 @@ echo "Reloading systemd manager configuration..."
 systemctl daemon-reload
 
 # Change hotspot SSID and password
-HOTSPOT_SSID="YourNewSSID"
-HOTSPOT_PASSWORD="YourNewPassword"
+HOTSPOT_SSID="feeder"
+HOTSPOT_PASSWORD="feeder"
 HOSTAPD_CONF="/etc/hostapd/hostapd.conf"
 
 echo "Changing hotspot SSID and password..."
