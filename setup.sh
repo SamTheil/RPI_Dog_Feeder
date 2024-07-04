@@ -31,6 +31,25 @@ echo "Configuring avahi-daemon..."
 AVAHI_CONF="/etc/avahi/avahi-daemon.conf"
 sed -i '/^host-name=/d' "$AVAHI_CONF"
 sed -i '/\[server\]/a host-name=feeder' "$AVAHI_CONF"
+sed -i '/\[server\]/a ratelimit-burst=1000' "$AVAHI_CONF"
+sed -i '/\[server\]/a ratelimit-interval-usec=1000000' "$AVAHI_CONF"
+
+# Add log-level setting if not present
+if ! grep -q "^log-level=" "$AVAHI_CONF"; then
+    sed -i '/\[server\]/a log-level=debug' "$AVAHI_CONF"
+fi
+
+# Create Avahi service file for Flask app
+echo "Creating Avahi service file for Flask app..."
+cat <<EOT > /etc/avahi/services/flaskapp.service
+<service-group>
+  <name replace-wildcards="yes">%h</name>
+  <service>
+    <type>_http._tcp</type>
+    <port>80</port>
+  </service>
+</service-group>
+EOT
 
 # Restart avahi-daemon
 echo "Restarting avahi-daemon..."
@@ -74,10 +93,6 @@ systemctl start flaskapp.service
 
 # Check the status of the Flask app service
 systemctl status flaskapp.service --no-pager
-
-# Reload systemd manager configuration
-echo "Reloading systemd manager configuration..."
-systemctl daemon-reload
 
 # Change hotspot SSID and password
 HOTSPOT_SSID="YourNewSSID"
