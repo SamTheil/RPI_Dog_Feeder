@@ -10,6 +10,9 @@ fi
 echo "Setting hostname to 'feeder'..."
 echo "feeder" > /etc/hostname
 
+git config merge.ours.name "Keep ours merge"
+git config merge.ours.driver true
+
 # Update /etc/hosts
 echo "Updating /etc/hosts..."
 sed -i '/127.0.1.1/d' /etc/hosts

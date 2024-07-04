@@ -1,13 +1,49 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 import os
 import time
+import json
+from servoclass import servoclass
 
 app = Flask(__name__)
 app.secret_key = 'supersecretkey'
 
+servo = servoclass()
+
 @app.route('/')
 def home():
     return render_template('index.html')
+
+@app.route('/admin')
+def admin():
+    return render_template('admin.html')
+
+@app.route('/set_servo_angle', methods=['POST'])
+def set_servo_angle():
+    data = request.get_json()
+    angle = data.get('angle')
+    servo.SetServoAngle(angle)
+    return jsonify({"status": "success", "angle": angle})
+
+@app.route('/set_get_food_angle', methods=['POST'])
+def set_get_food_angle():
+    data = request.get_json()
+    angle = data.get('angle')
+    update_config('get_food_angle', angle)
+    return jsonify({"status": "success", "angle": angle})
+
+@app.route('/set_dispense_food_angle', methods=['POST'])
+def set_dispense_food_angle():
+    data = request.get_json()
+    angle = data.get('angle')
+    update_config('dispense_food_angle', angle)
+    return jsonify({"status": "success", "angle": angle})
+
+def update_config(key, value):
+    with open('config.json', 'r') as f:
+        config = json.load(f)
+    config[key] = value
+    with open('config.json', 'w') as f:
+        json.dump(config, f, indent=2)
 
 @app.route('/change_wifi', methods=['POST'])
 def change_wifi():
@@ -38,22 +74,6 @@ def change_wifi():
     time.sleep(1)
 
     os.system('sudo reboot')
-
-@app.route('/enable_ap', methods=['POST'])
-def enable_ap():
-    os.system('chmod +x accessPoint_enable.sh')
-    os.system('sudo ./accessPoint_enable.sh')
-    flash('Access Point enabled. Device will reboot now.')
-    time.sleep(1)
-    return redirect(url_for('home'))
-
-@app.route('/disable_ap', methods=['POST'])
-def disable_ap():
-    os.system('chmod +x accessPoint_disable.sh')
-    os.system('sudo ./accessPoint_disable.sh')
-    flash('Access Point disabled. Device will reboot now.')
-    time.sleep(1)
-    return redirect(url_for('home'))
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=80)
