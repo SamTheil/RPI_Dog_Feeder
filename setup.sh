@@ -39,6 +39,9 @@ sed -i '/\[server\]/a host-name=feeder' "$AVAHI_CONF"
 echo "Restarting avahi-daemon..."
 systemctl restart avahi-daemon
 
+sudo apt update
+sudo apt install python3-pip
+
 # Check avahi-daemon status
 systemctl status avahi-daemon --no-pager
 
@@ -51,6 +54,7 @@ echo "Installing and enabling pigpiod service..."
 sudo apt-get install -y pigpio
 sudo systemctl enable pigpiod
 sudo systemctl start pigpiod
+pip3 install pigpio
 
 # Create systemd service for Flask app
 echo "Creating systemd service for Flask app..."

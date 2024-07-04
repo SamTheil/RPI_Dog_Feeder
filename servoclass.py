@@ -14,7 +14,7 @@ class servoclass:
                     max_angle=1,
                     min_pulse_width=0.001,
                     max_pulse_width=0.002,
-                    pin_factory=PiGPIOFactory(),
+                    pin_factory=PiGPIOFactory(host='localhost', port=8888),
                 )
                 break
             except OSError:
