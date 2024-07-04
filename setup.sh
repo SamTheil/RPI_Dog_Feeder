@@ -78,6 +78,12 @@ systemctl start flaskapp.service
 # Check the status of the Flask app service
 systemctl status flaskapp.service --no-pager
 
+# Install and enable pigpiod service
+echo "Installing and enabling pigpiod service..."
+apt-get install -y pigpio
+systemctl enable pigpiod
+systemctl start pigpiod
+
 # Reload systemd manager configuration
 echo "Reloading systemd manager configuration..."
 systemctl daemon-reload
