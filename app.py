@@ -1,9 +1,16 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 import os
 import time
+from servoclass import servoclass
 
 app = Flask(__name__)
 app.secret_key = 'supersecretkey'
+
+servo = servoclass()
+
+#Example activation of servo
+servo.SetServoAngle(-1)
+servo.StopServoTorque(0)
 
 @app.route('/')
 def home():
