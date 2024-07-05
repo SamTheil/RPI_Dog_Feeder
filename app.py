@@ -2,14 +2,14 @@ from flask import Flask, render_template, request, redirect, url_for, flash, jso
 import os
 import time
 import json
-from servoclass import servoclass
+from dispenserclass import dispenserclass
 
 time.sleep(5)
 
 app = Flask(__name__)
 app.secret_key = 'supersecretkey'
 
-servo = servoclass()
+dispenser = dispenserclass()
 servo_angle = 0
 
 # Paths to data files
@@ -32,6 +32,10 @@ def read_data():
 def write_data(data):
     with open(data_path, 'w') as data_file:
         json.dump(data, data_file, indent=4)
+
+data = read_data()
+get_food_angle = data['food_retrieve_angle']
+dispense_food_angle = data['food_dispense_angle']
 
 @app.route('/')
 def home():
@@ -85,7 +89,7 @@ def change_wifi():
 def start_servo_calibration():
     global servo_angle
     servo_angle = 0
-    servo.SetServoAngle(servo_angle)
+    dispenser.servo.SetServoAngle(servo_angle)
     return jsonify({'angle': servo_angle})
 
 @app.route('/update_servo_angle', methods=['POST'])
@@ -96,24 +100,24 @@ def update_servo_angle():
         servo_angle += 0.02
     elif direction == 'down':
         servo_angle -= 0.02
-    servo.SetServoAngle(servo_angle)
+    dispenser.servo.SetServoAngle(servo_angle)
     return jsonify({'angle': servo_angle})
 
 @app.route('/set_food_dispense_angle', methods=['POST'])
 def set_food_dispense_angle():
     global servo_angle
     data = read_data()
-    data['food_dispense_angle'] = servo.GetServoAngle()
+    data['food_dispense_angle'] = dispenser.servo.GetServoAngle()
     write_data(data)
-    return jsonify({'message': 'Food dispense angle set successfully', 'angle': servo.GetServoAngle()})
+    return jsonify({'message': 'Food dispense angle set successfully', 'angle': dispenser.servo.GetServoAngle()})
 
 @app.route('/set_food_retrieve_angle', methods=['POST'])
 def set_food_retrieve_angle():
     global servo_angle
     data = read_data()
-    data['food_retrieve_angle'] = servo.GetServoAngle()
+    data['food_retrieve_angle'] = dispenser.servo.GetServoAngle()
     write_data(data)
-    return jsonify({'message': 'Food retrieve angle set successfully', 'angle': servo.GetServoAngle()})
+    return jsonify({'message': 'Food retrieve angle set successfully', 'angle': dispenser.servo.GetServoAngle()})
 
 @app.route('/test_servo_range', methods=['POST'])
 def test_servo_range():
@@ -122,17 +126,26 @@ def test_servo_range():
     dispense_angle = data.get('food_dispense_angle', 1)
     
     # Move to retrieve angle
-    servo.SetServoAngle(retrieve_angle)
-    time.sleep(1)  # Adjust sleep time as needed
+    dispenser.servo.SetServoAngle(retrieve_angle)
+    time.sleep(1.5)  # Adjust sleep time as needed
     
     # Move to dispense angle
-    servo.SetServoAngle(dispense_angle)
-    time.sleep(1)  # Adjust sleep time as needed
+    dispenser.servo.SetServoAngle(dispense_angle)
+    time.sleep(1.5)  # Adjust sleep time as needed
     
     # Move back to retrieve angle
-    servo.SetServoAngle(retrieve_angle)
+    dispenser.servo.SetServoAngle(retrieve_angle)
     
     return jsonify({'message': 'Servo range test completed'})
 
+@app.route('/dispense_treat', methods=['POST'])
+def dispense_treat():
+    dispenser.dispense_treat(get_food_angle,dispense_food_angle)
+
 if __name__ == '__main__':
+
+    dispenser.servo.SetServoAngle(get_food_angle)
+    time.sleep(1.5)
+    dispenser.servo.StopServoTorque()
+
     app.run(host='0.0.0.0', port=80)

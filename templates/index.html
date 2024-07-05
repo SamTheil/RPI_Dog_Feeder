@@ -1,11 +1,36 @@
 {% extends 'base.html' %}
 
 {% block content %}
+    <style>
+        button {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        background-color: #ffffff;
+        box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.2);
+        color: rgb(0, 0, 0);
+        cursor: pointer;
+        text-align: center;
+        margin: 10px;
+    }
+    </style>
     <body>
         <div class="centered-container">
             <div id="menu">
                 <h1>Home</h1>
+                <button id="dispense_treat">Dispense Treat</button>
             </div>    
         </div>        
     </body>
+    <script>
+        document.getElementById('dispense_treat').addEventListener('click', function() {
+        fetch('/test_servo_range', {
+            method: 'POST'
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Servo range test completed.');
+        });
+        });
+    </script>
 {% endblock %}
