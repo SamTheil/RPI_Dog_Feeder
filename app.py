@@ -3,6 +3,8 @@ import os
 import time
 from servoclass import servoclass
 
+time.sleep(5)
+
 app = Flask(__name__)
 app.secret_key = 'supersecretkey'
 

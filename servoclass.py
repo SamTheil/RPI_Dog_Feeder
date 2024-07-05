@@ -1,12 +1,19 @@
+import os
+import time
 from gpiozero import AngularServo
 from gpiozero.pins.pigpio import PiGPIOFactory
-import time
+
+def start_pigpiod():
+    if os.system('pgrep pigpiod > /dev/null') != 0:
+        os.system('sudo pigpiod')
 
 class servoclass:
     def __init__(self):
+        start_pigpiod()
         max_retries = 5
         for _ in range(max_retries):
             try:
+                print("Attempting to connect to pigpiod...")
                 self.servo = AngularServo(
                     18,
                     initial_angle=0,
@@ -16,11 +23,11 @@ class servoclass:
                     max_pulse_width=0.002,
                     pin_factory=PiGPIOFactory(),
                 )
+                print("Connected to pigpiod.")
                 break
-            except OSError:
-                print(
-                    f"Failed to connect to pigpiod. Attempt {_ + 1}/{max_retries}. Retrying in 5 seconds..."
-                )
+            except OSError as e:
+                print(f"Failed to connect to pigpiod: {e}")
+                print(f"Attempt {_ + 1}/{max_retries}. Retrying in 5 seconds...")
                 time.sleep(5)
         else:
             raise RuntimeError("Failed to connect to pigpiod after multiple attempts.")
