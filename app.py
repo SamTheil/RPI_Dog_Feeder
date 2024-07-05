@@ -115,5 +115,24 @@ def set_food_retrieve_angle():
     write_data(data)
     return jsonify({'message': 'Food retrieve angle set successfully', 'angle': servo.GetServoAngle()})
 
+@app.route('/test_servo_range', methods=['POST'])
+def test_servo_range():
+    data = read_data()
+    retrieve_angle = data.get('food_retrieve_angle', 0)
+    dispense_angle = data.get('food_dispense_angle', 1)
+    
+    # Move to retrieve angle
+    servo.SetServoAngle(retrieve_angle)
+    time.sleep(1)  # Adjust sleep time as needed
+    
+    # Move to dispense angle
+    servo.SetServoAngle(dispense_angle)
+    time.sleep(1)  # Adjust sleep time as needed
+    
+    # Move back to retrieve angle
+    servo.SetServoAngle(retrieve_angle)
+    
+    return jsonify({'message': 'Servo range test completed'})
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=80)

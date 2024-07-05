@@ -26,6 +26,7 @@
             <button id="start-servo-calibration">Start Servo Calibration</button>
             <button id="set-dispense-angle">Set Food Dispense Angle</button>
             <button id="set-retrieve-angle">Set Food Retrieve Angle</button>
+            <button id="test-servo-range">Test Servo Range</button>
         </div>
     </div>
 </body>
@@ -77,6 +78,16 @@
         .then(data => {
             alert(data.message);
             console.log('Food retrieve angle set to:', data.angle);
+        });
+    });
+
+    document.getElementById('test-servo-range').addEventListener('click', function() {
+        fetch('/test_servo_range', {
+            method: 'POST'
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Servo range test completed.');
         });
     });
 </script>
