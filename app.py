@@ -105,7 +105,7 @@ def set_food_dispense_angle():
     data = read_data()
     data['food_dispense_angle'] = servo.GetServoAngle()
     write_data(data)
-    return jsonify({'angle': servo.GetServoAngle()})
+    return jsonify({'message': 'Food dispense angle set successfully', 'angle': servo.GetServoAngle()})
 
 @app.route('/set_food_retrieve_angle', methods=['POST'])
 def set_food_retrieve_angle():
@@ -113,7 +113,7 @@ def set_food_retrieve_angle():
     data = read_data()
     data['food_retrieve_angle'] = servo.GetServoAngle()
     write_data(data)
-    return jsonify({'angle': servo.GetServoAngle()})
+    return jsonify({'message': 'Food retrieve angle set successfully', 'angle': servo.GetServoAngle()})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=80)

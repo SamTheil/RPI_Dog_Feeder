@@ -64,6 +64,7 @@
         })
         .then(response => response.json())
         .then(data => {
+            alert(data.message);
             console.log('Food dispense angle set to:', data.angle);
         });
     });
@@ -74,6 +75,7 @@
         })
         .then(response => response.json())
         .then(data => {
+            alert(data.message);
             console.log('Food retrieve angle set to:', data.angle);
         });
     });
