@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 import os
 import time
 from servoclass import servoclass
@@ -9,11 +9,7 @@ app = Flask(__name__)
 app.secret_key = 'supersecretkey'
 
 servo = servoclass()
-
-#Example activation of servo
-servo.SetServoAngle(-1)
-time.sleep(2)
-servo.StopServoTorque()
+servo_angle = 0
 
 @app.route('/')
 def home():
@@ -62,6 +58,24 @@ def change_wifi():
     os.system('sudo reboot')
 
     return redirect(url_for('home'))
+
+@app.route('/start_servo_calibration', methods=['POST'])
+def start_servo_calibration():
+    global servo_angle
+    servo_angle = 0
+    servo.SetServoAngle(servo_angle)
+    return jsonify({'angle': servo_angle})
+
+@app.route('/update_servo_angle', methods=['POST'])
+def update_servo_angle():
+    global servo_angle
+    direction = request.json.get('direction')
+    if direction == 'up':
+        servo_angle += 0.02
+    elif direction == 'down':
+        servo_angle -= 0.02
+    servo.SetServoAngle(servo_angle)
+    return jsonify({'angle': servo_angle})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=80)
