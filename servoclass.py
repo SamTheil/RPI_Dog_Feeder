@@ -9,6 +9,7 @@ def start_pigpiod():
 
 class servoclass:
     def __init__(self):
+        self.servo_angle = 0
         start_pigpiod()
         max_retries = 5
         for _ in range(max_retries):
@@ -36,9 +37,10 @@ class servoclass:
 
     def SetServoAngle(self, ServoAngle):
         self.servo.angle = ServoAngle
+        self.servo_angle = ServoAngle
 
     def StopServoTorque(self):
         self.servo.value = None
 
     def GetServoAngle(self):
-        return self.servo.angle
+        return self.servo_angle
