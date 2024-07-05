@@ -32,3 +32,6 @@ class servoclass:
 
     def StopServoTorque(self):
         self.servo.value = None
+
+    def GetServoAngle(self):
+        return self.servo.angle
