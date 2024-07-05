@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 import os
 import time
+import json
 from servoclass import servoclass
 
 time.sleep(5)
@@ -10,6 +11,27 @@ app.secret_key = 'supersecretkey'
 
 servo = servoclass()
 servo_angle = 0
+
+# Paths to data files
+template_path = 'data_template.json'
+data_path = 'data.json'
+
+# Copy template to data.json if it doesn't exist
+if not os.path.exists(data_path):
+    with open(template_path, 'r') as template_file:
+        data = json.load(template_file)
+    with open(data_path, 'w') as data_file:
+        json.dump(data, data_file, indent=4)
+
+# Function to read data
+def read_data():
+    with open(data_path, 'r') as data_file:
+        return json.load(data_file)
+
+# Function to write data
+def write_data(data):
+    with open(data_path, 'w') as data_file:
+        json.dump(data, data_file, indent=4)
 
 @app.route('/')
 def home():
@@ -76,6 +98,22 @@ def update_servo_angle():
         servo_angle -= 0.02
     servo.SetServoAngle(servo_angle)
     return jsonify({'angle': servo_angle})
+
+@app.route('/set_food_dispense_angle', methods=['POST'])
+def set_food_dispense_angle():
+    global servo_angle
+    data = read_data()
+    data['food_dispense_angle'] = servo.GetServoAngle()
+    write_data(data)
+    return jsonify({'angle': servo.GetServoAngle()})
+
+@app.route('/set_food_retrieve_angle', methods=['POST'])
+def set_food_retrieve_angle():
+    global servo_angle
+    data = read_data()
+    data['food_retrieve_angle'] = servo.GetServoAngle()
+    write_data(data)
+    return jsonify({'angle': servo.GetServoAngle()})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=80)

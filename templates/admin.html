@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <style>
+<style>
     button {
         padding: 10px 20px;
         border: none;
@@ -14,55 +14,68 @@
         margin: 10px;
     }
 
-    menu {
+    #menu {
         display: flex;
         flex-direction: row;
     }
-
-    .centered-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-    }
-    </style>
-    <body>
-        <div class="centered-container">
-            <div id="menu">
-                <h1>Admin</h1>
-                <button id="start-servo-calibration">Start Servo Calibration</button>
-                <button>Set Food Dispense Angle</button>
-                <button>Set Food Retrieve Angle</button>
-            </div>
+</style>
+<body>
+    <div class="centered-container">
+        <h1>Admin</h1>
+        <div id="menu">
+            <button id="start-servo-calibration">Start Servo Calibration</button>
+            <button id="set-dispense-angle">Set Food Dispense Angle</button>
+            <button id="set-retrieve-angle">Set Food Retrieve Angle</button>
         </div>
-    </body>
+    </div>
+</body>
 
-    <script>
-        document.getElementById('start-servo-calibration').addEventListener('click', function() {
-            fetch('/start_servo_calibration', {
-                method: 'POST'
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Servo calibration started at angle:', data.angle);
-            });
-
-            document.addEventListener('keydown', function(event) {
-                if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
-                    const direction = event.key === 'ArrowUp' ? 'up' : 'down';
-                    fetch('/update_servo_angle', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ direction: direction })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        console.log('Servo angle updated:', data.angle);
-                    });
-                }
-            });
+<script>
+    document.getElementById('start-servo-calibration').addEventListener('click', function() {
+        fetch('/start_servo_calibration', {
+            method: 'POST'
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Servo calibration started at angle:', data.angle);
         });
-    </script>
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+                const direction = event.key === 'ArrowUp' ? 'up' : 'down';
+                fetch('/update_servo_angle', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ direction: direction })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Servo angle updated:', data.angle);
+                });
+            }
+        });
+    });
+
+    document.getElementById('set-dispense-angle').addEventListener('click', function() {
+        fetch('/set_food_dispense_angle', {
+            method: 'POST'
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Food dispense angle set to:', data.angle);
+        });
+    });
+
+    document.getElementById('set-retrieve-angle').addEventListener('click', function() {
+        fetch('/set_food_retrieve_angle', {
+            method: 'POST'
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Food retrieve angle set to:', data.angle);
+        });
+    });
+</script>
 {% endblock %}
