@@ -19,8 +19,8 @@ class servoclass:
                     initial_angle=0,
                     min_angle=-1,
                     max_angle=1,
-                    min_pulse_width=0.001,
-                    max_pulse_width=0.002,
+                    min_pulse_width=0.0005,
+                    max_pulse_width=0.0025,
                     pin_factory=PiGPIOFactory(),
                 )
                 print("Connected to pigpiod.")
