@@ -107,7 +107,26 @@
     <script>
         document.getElementById('wifi-form').addEventListener('submit', function(event) {
             event.preventDefault();
-            document.getElementById('reboot-popup').style.display = 'flex';
+            
+            // Send WiFi change request to the server
+            fetch('/change_wifi', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    ssid: document.getElementById('ssid').value,
+                    password: document.getElementById('password').value
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    document.getElementById('reboot-popup').style.display = 'flex';
+                } else {
+                    alert('Failed to change WiFi settings.');
+                }
+            });
         });
 
         document.getElementById('reboot-now').addEventListener('click', function() {

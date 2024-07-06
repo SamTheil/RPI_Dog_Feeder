@@ -53,19 +53,10 @@ def settings():
 def admin():
     return render_template('admin.html')
 
-@app.route('/reboot_now', methods=['POST'])
-def reboot_now():
-    os.system('sudo reboot')
-    return jsonify({'message': 'Rebooting now...'})
-
-@app.route('/reboot_later', methods=['POST'])
-def reboot_later():
-    return jsonify({'message': 'Reboot postponed. Please reboot manually later.'})
-
 @app.route('/change_wifi', methods=['POST'])
 def change_wifi():
-    ssid = request.form['ssid']
-    password = request.form['password']
+    ssid = request.json['ssid']
+    password = request.json['password']
     
     # Create a wpa_supplicant.conf content
     wpa_supplicant_conf = f"""
@@ -83,16 +74,16 @@ def change_wifi():
     with open('/etc/wpa_supplicant/wpa_supplicant.conf', 'w') as f:
         f.write(wpa_supplicant_conf)
 
-    # Restart the WiFi interface
-    os.system('sudo wpa_cli -i wlan0 reconfigure')
+    return jsonify({'status': 'success', 'message': 'WiFi settings have been changed.'})
 
-    flash('WiFi settings have been changed. Device will reboot now.')
-
-    time.sleep(1)
-
+@app.route('/reboot_now', methods=['POST'])
+def reboot_now():
     os.system('sudo reboot')
+    return jsonify({'message': 'Rebooting now...'})
 
-    return redirect(url_for('home'))
+@app.route('/reboot_later', methods=['POST'])
+def reboot_later():
+    return jsonify({'message': 'Reboot postponed. Please reboot manually later.'})
 
 @app.route('/start_servo_calibration', methods=['POST'])
 def start_servo_calibration():
@@ -152,7 +143,6 @@ def dispense_treat():
     dispenser.dispense_treat(get_food_angle,dispense_food_angle)
 
 if __name__ == '__main__':
-
     dispenser.servo.SetServoAngle(get_food_angle)
     time.sleep(1.5)
     dispenser.servo.StopServoTorque()
