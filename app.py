@@ -53,6 +53,15 @@ def settings():
 def admin():
     return render_template('admin.html')
 
+@app.route('/reboot_now', methods=['POST'])
+def reboot_now():
+    os.system('sudo reboot')
+    return jsonify({'message': 'Rebooting now...'})
+
+@app.route('/reboot_later', methods=['POST'])
+def reboot_later():
+    return jsonify({'message': 'Reboot postponed. Please reboot manually later.'})
+
 @app.route('/change_wifi', methods=['POST'])
 def change_wifi():
     ssid = request.form['ssid']
