@@ -78,6 +78,7 @@ def change_wifi():
 
 @app.route('/reboot_now', methods=['POST'])
 def reboot_now():
+    time.sleep(5)
     os.system('sudo reboot')
     return jsonify({'message': 'Rebooting now...'})
 
