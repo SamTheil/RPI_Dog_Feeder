@@ -78,9 +78,19 @@ def change_wifi():
 
 @app.route('/reboot_now', methods=['POST'])
 def reboot_now():
-    time.sleep(5)
-    os.system('sudo reboot')
-    return jsonify({'message': 'Rebooting now...'})
+    def delayed_reboot():
+        time.sleep(5)
+        os.system('sudo reboot')
+
+    # Send the response immediately
+    response = jsonify({'message': 'Rebooting now...'})
+    
+    # Start the reboot in a new thread to avoid blocking the response
+    from threading import Thread
+    reboot_thread = Thread(target=delayed_reboot)
+    reboot_thread.start()
+
+    return response
 
 @app.route('/reboot_later', methods=['POST'])
 def reboot_later():
