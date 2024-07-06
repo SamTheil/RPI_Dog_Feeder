@@ -85,16 +85,29 @@
         </div>
     </div>
 
+    <!-- Popup for rebooting -->
+    <div id="rebooting-popup" class="popup">
+        <div class="popup-content">
+            <h2>Rebooting...</h2>
+        </div>
+    </div>
+
     <script>
         document.getElementById('reboot-button').addEventListener('click', function() {
             document.getElementById('reboot-popup').style.display = 'flex';
         });
 
         document.getElementById('reboot-now').addEventListener('click', function() {
+            document.getElementById('reboot-popup').style.display = 'none';
+            document.getElementById('rebooting-popup').style.display = 'flex';
+            
             fetch('/reboot_now', { method: 'POST' })
                 .then(response => response.json())
                 .then(data => {
                     alert(data.message);
+                    setTimeout(function() {
+                        window.close();
+                    }, 3000); // Wait 3 seconds before closing the tab
                 });
         });
 
