@@ -104,10 +104,9 @@
             fetch('/reboot_now', { method: 'POST' })
                 .then(response => response.json())
                 .then(data => {
-                    const newWindow = window.open("", "_self");
-                    newWindow.document.write('<p>Rebooting now...</p>');
+                    alert(data.message); // Alert the user about rebooting now
                     setTimeout(function() {
-                        newWindow.close();
+                        window.open('','_self').close();
                     }, 3000); // Wait 3 seconds before closing the tab
                 });
         });

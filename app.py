@@ -2,8 +2,8 @@ from flask import Flask, render_template, request, redirect, url_for, flash, jso
 import os
 import time
 import json
-from dispenserclass import dispenserclass
 from threading import Thread
+from dispenserclass import dispenserclass
 
 time.sleep(5)
 
