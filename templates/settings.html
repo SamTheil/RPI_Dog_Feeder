@@ -1,10 +1,106 @@
 {% extends 'base.html' %}
 {% block content %}
-    <body>
-        <div class="centered-container">
-            <div id="menu">
-                <h1>Settings</h1>
-            </div>    
-        </div>        
-    </body>
+<style>
+    h1 {
+        margin-top: 0px;
+        margin-bottom: 15px;
+    }
+
+    .centered-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    #menu {
+        text-align: center;
+    }
+
+    .button {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        background-color: #2c92ff;
+        color: white;
+        cursor: pointer;
+        text-align: center;
+        margin-top: 20px;
+    }
+
+    /* Popup container */
+    .popup {
+        display: none;
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        justify-content: center;
+        align-items: center;
+    }
+
+    /* Popup content */
+    .popup-content {
+        background-color: white;
+        padding: 20px;
+        border-radius: 10px;
+        text-align: center;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .popup button {
+        margin: 5px;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .popup button#reboot-now {
+        background-color: #28a745;
+        color: white;
+    }
+
+    .popup button#reboot-later {
+        background-color: #dc3545;
+        color: white;
+    }
+</style>
+
+<body>
+    <div class="centered-container">
+        <div id="menu">
+            <h1>Settings</h1>
+            <button id="reboot-button" class="button">Reboot</button>
+        </div>    
+    </div>   
+
+    <!-- Popup for reboot confirmation -->
+    <div id="reboot-popup" class="popup">
+        <div class="popup-content">
+            <h2>Are you sure you want to reboot?</h2>
+            <button id="reboot-now">Reboot Now</button>
+            <button id="reboot-later">Cancel</button>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('reboot-button').addEventListener('click', function() {
+            document.getElementById('reboot-popup').style.display = 'flex';
+        });
+
+        document.getElementById('reboot-now').addEventListener('click', function() {
+            fetch('/reboot_now', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                });
+        });
+
+        document.getElementById('reboot-later').addEventListener('click', function() {
+            document.getElementById('reboot-popup').style.display = 'none';
+        });
+    </script>
+</body>
 {% endblock %}
