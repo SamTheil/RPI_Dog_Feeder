@@ -135,7 +135,7 @@
                 }
             });
         });
-
+    
         document.getElementById('reboot-now').addEventListener('click', function() {
             document.getElementById('reboot-popup').style.display = 'none';
             document.getElementById('rebooting-popup').style.display = 'flex';
@@ -143,16 +143,17 @@
             fetch('/reboot_now', { method: 'POST' })
                 .then(response => response.json())
                 .then(data => {
+                    const newWindow = window.open("", "_self");
+                    newWindow.document.write('<p>Rebooting now...</p>');
                     setTimeout(function() {
-                        alert(data.message);
-                        window.close();
+                        newWindow.close();
                     }, 3000); // Wait 3 seconds before closing the tab
                 });
         });
-
+    
         document.getElementById('reboot-later').addEventListener('click', function() {
             document.getElementById('reboot-popup').style.display = 'none';
         });
-    </script>
+    </script>    
 </body>
 {% endblock %}
