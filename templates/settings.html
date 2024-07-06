@@ -105,6 +105,7 @@
                 .then(response => response.json())
                 .then(data => {
                     setTimeout(function() {
+                        alert(data.message);
                         window.close();
                     }, 3000); // Wait 3 seconds before closing the tab
                 });

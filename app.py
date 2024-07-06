@@ -3,6 +3,7 @@ import os
 import time
 import json
 from dispenserclass import dispenserclass
+from threading import Thread
 
 time.sleep(5)
 
@@ -76,21 +77,18 @@ def change_wifi():
 
     return jsonify({'status': 'success', 'message': 'WiFi settings have been changed.'})
 
+def delayed_reboot():
+    time.sleep(5)
+    os.system('sudo reboot')
+
 @app.route('/reboot_now', methods=['POST'])
 def reboot_now():
-    def delayed_reboot():
-        time.sleep(5)
-        os.system('sudo reboot')
-
-    # Send the response immediately
-    response = jsonify({'message': 'Rebooting now...'})
-    
     # Start the reboot in a new thread to avoid blocking the response
-    from threading import Thread
     reboot_thread = Thread(target=delayed_reboot)
     reboot_thread.start()
 
-    return response
+    # Send the response immediately
+    return jsonify({'message': 'Rebooting now...'})
 
 @app.route('/reboot_later', methods=['POST'])
 def reboot_later():
