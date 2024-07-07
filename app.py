@@ -165,6 +165,14 @@ def get_current_hostname():
     current_hostname = socket.gethostname()
     return jsonify({'hostname': current_hostname})
 
+@app.route('/update_meal_schedule', methods=['POST'])
+def update_meal_schedule():
+    meals = request.json['meals']
+    data = read_data()
+    data['meals'] = meals
+    write_data(data)
+    return jsonify({'status': 'success', 'message': 'Meal schedule updated successfully'})
+
 if __name__ == '__main__':
     dispenser.servo.SetServoAngle(get_food_angle)
     time.sleep(1.5)
