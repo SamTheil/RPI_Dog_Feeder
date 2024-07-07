@@ -212,7 +212,7 @@
                 .then(response => response.json())
                 .then(data => {
                     const hostnameInput = document.getElementById('hostname-input');
-                    hostnameInput.value = data.hostname + '.local';
+                    hostnameInput.value = data.hostname;
                 });
         });
     </script>
