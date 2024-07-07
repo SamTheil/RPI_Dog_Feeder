@@ -48,7 +48,7 @@ class MdnsConfigurator:
 # Usage
 if __name__ == "__main__":
     mdns_configurator = MdnsConfigurator()
-    new_hostname = "dogfeeder"
+    new_hostname = "feedera"
     try:
         mdns_configurator.set_hostname(new_hostname)
         print(f"mDNS name changed to {new_hostname}.local")
