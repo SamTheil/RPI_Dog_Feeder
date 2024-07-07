@@ -6,13 +6,14 @@ from threading import Thread
 from dispenserclass import dispenserclass
 from MDNSConfigurator import MdnsConfigurator
 
-# GitHubUpdater class definition
-import subprocess
-
 class GitHubUpdater:
     def __init__(self, repo_dir):
         self.repo_dir = repo_dir
-    
+        self.configure_safe_directory()
+
+    def configure_safe_directory(self):
+        subprocess.run(["git", "config", "--global", "--add", "safe.directory", self.repo_dir])
+
     def check_for_updates(self):
         os.chdir(self.repo_dir)
         result = subprocess.run(["git", "fetch"], capture_output=True, text=True)
