@@ -3,12 +3,12 @@ import os
 import time
 import json
 from threading import Thread
-from crontab import CronTab
 from dispenserclass import dispenserclass
 from MDNSConfigurator import MdnsConfigurator
 from GitHubUpdater import GitHubUpdater
 import socket
-import logging
+from apscheduler.schedulers.background import BackgroundScheduler
+from datetime import datetime
 
 time.sleep(5)
 
@@ -22,8 +22,6 @@ servo_angle = 0
 # Paths to data files
 template_path = 'data_template.json'
 data_path = 'data.json'
-
-logging.basicConfig(filename='/var/log/feeder_cron.log', level=logging.DEBUG, format='%(asctime)s %(message)s')
 
 if not os.path.exists(data_path):
     with open(template_path, 'r') as template_file:
@@ -39,37 +37,29 @@ def write_data(data):
     with open(data_path, 'w') as data_file:
         json.dump(data, data_file, indent=4)
 
-def create_cron_job(hour, minute, url):
-    logging.debug(f'Creating cron job for {hour}:{minute} with URL {url}')
-    cron = CronTab(user=True)
-    command = f'/usr/bin/curl -X POST {url} >> /var/log/feeder_cron.log 2>&1'
-    job = cron.new(command=command)
-    job.setall(f'{minute} {hour} * * *')
-    cron.write()
-    logging.debug(f'Cron job created: {job.is_valid()} with schedule: {job.slices}')
-
-def clear_cron_jobs():
-    logging.debug('Clearing all cron jobs')
-    cron = CronTab(user=True)
-    cron.remove_all()
-    cron.write()
-
-def schedule_meals():
-    data = read_data()
-    meals = data.get('meals', [])
-    clear_cron_jobs()
-    for meal in meals:
-        meal_time = meal['mealTime']
-        hour, minute = meal_time.split(':')
-        url = f'http://localhost:80/dispense_meal?quantity=10&get_food_angle={get_food_angle}&dispense_food_angle={dispense_food_angle}'
-        create_cron_job(hour, minute, url)
-        logging.debug(f'Scheduled meal at {hour}:{minute} with URL {url}')
-
 data = read_data()
 get_food_angle = data['food_retrieve_angle']
 dispense_food_angle = data['food_dispense_angle']
 
 updater = GitHubUpdater(os.path.dirname(os.path.abspath(__file__)))
+
+scheduler = BackgroundScheduler()
+
+def schedule_meals():
+    data = read_data()
+    meals = data.get('meals', [])
+    scheduler.remove_all_jobs()
+    for meal in meals:
+        meal_time = datetime.strptime(meal['mealTime'], '%H:%M')
+        scheduler.add_job(
+            dispenser.dispense_food, 
+            'cron', 
+            hour=meal_time.hour, 
+            minute=meal_time.minute, 
+            args=[10, get_food_angle, dispense_food_angle], 
+            id=f"{meal['mealName']}-{meal['mealTime']}"
+        )
+    scheduler.start()
 
 @app.route('/')
 def home():
@@ -206,21 +196,10 @@ def update_meal_schedule():
     schedule_meals()
     return jsonify({'status': 'success', 'message': 'Meal schedule updated successfully'})
 
-@app.route('/dispense_meal', methods=['POST'])
-def dispense_meal():
-    quantity = request.args.get('quantity', default=10, type=int)
-    get_food_angle = request.args.get('get_food_angle', type=float)
-    dispense_food_angle = request.args.get('dispense_food_angle', type=float)
-    dispenser.dispense_food(quantity, get_food_angle, dispense_food_angle)
-    return jsonify({'status': 'success', 'message': 'Meal dispensed successfully'})
-
 if __name__ == '__main__':
-    logging.debug('Starting application')
     dispenser.servo.SetServoAngle(get_food_angle)
     time.sleep(1.5)
     dispenser.servo.StopServoTorque()
-    
-    schedule_meals()  # Schedule meals on startup
-    logging.debug('Scheduled meals on startup')
 
+    schedule_meals()
     app.run(host='0.0.0.0', port=80)
