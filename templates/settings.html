@@ -86,6 +86,43 @@
     #change_mdns_heading{
         margin-bottom: 5px;
     }
+
+    /* Responsive styles */
+    @media (max-width: 768px) {
+        h1 {
+            font-size: 24px;
+        }
+
+        .button-group {
+            gap: 10px;
+        }
+
+        .button {
+            padding: 8px 16px;
+        }
+
+        .input-box {
+            width: 150px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        h1 {
+            font-size: 18px;
+        }
+
+        .button-group {
+            gap: 5px;
+        }
+
+        .button {
+            padding: 6px 12px;
+        }
+
+        .input-box {
+            width: 100px;
+        }
+    }
 </style>
 
 <body>
@@ -97,7 +134,7 @@
                 <button id="check-updates-button" class="button">Check for Updates</button>
                 <button id="update-button" class="button">Update</button>
             </div>
-            <h2 id="change_mdns_heading">Change mDNS Hostname</h2>
+            <h2 id="change_mdns_heading">Change Hostname</h2>
             <input type="text" id="hostname-input" class="input-box" pattern="[a-zA-Z0-9_-]+">
             <button id="change-hostname-button" class="button">Change Hostname</button>
         </div>
