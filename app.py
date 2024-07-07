@@ -46,11 +46,7 @@ def create_cron_job(hour, minute, url):
     job = cron.new(command=command)
     job.setall(f'{minute} {hour} * * *')
     cron.write()
-    logging.debug(f'Cron job created: {job}')
-
-    # Manually create a cron job to verify
-    os.system(f'(crontab -l ; echo "{minute} {hour} * * * {command}") | crontab -')
-    logging.debug('Manually created cron job to verify')
+    logging.debug(f'Cron job created: {job.is_valid()} with schedule: {job.slices}')
 
 def clear_cron_jobs():
     logging.debug('Clearing all cron jobs')
