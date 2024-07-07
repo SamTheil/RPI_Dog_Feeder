@@ -42,10 +42,15 @@ def write_data(data):
 def create_cron_job(hour, minute, url):
     logging.debug(f'Creating cron job for {hour}:{minute} with URL {url}')
     cron = CronTab(user=True)
-    job = cron.new(command=f'/usr/bin/curl -X POST {url} >> /var/log/feeder_cron.log 2>&1')
+    command = f'/usr/bin/curl -X POST {url} >> /var/log/feeder_cron.log 2>&1'
+    job = cron.new(command=command)
     job.setall(f'{minute} {hour} * * *')
     cron.write()
     logging.debug(f'Cron job created: {job}')
+
+    # Manually create a cron job to verify
+    os.system(f'(crontab -l ; echo "{minute} {hour} * * * {command}") | crontab -')
+    logging.debug('Manually created cron job to verify')
 
 def clear_cron_jobs():
     logging.debug('Clearing all cron jobs')
