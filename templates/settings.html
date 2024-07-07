@@ -27,6 +27,14 @@
         margin-top: 20px;
     }
 
+    .input-box {
+        margin: 10px 0;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        width: 200px;
+    }
+
     /* Popup container */
     .popup {
         display: none;
@@ -74,6 +82,12 @@
             <h1>Settings</h1>
             <button id="reboot-button" class="button">Reboot</button>
         </div>    
+
+        <div>
+            <h2>Change mDNS Hostname</h2>
+            <input type="text" id="hostname-input" class="input-box" pattern="[a-zA-Z0-9_-]+" title="Only letters, numbers, underscores, and hyphens are allowed">
+            <button id="change-hostname-button" class="button">Change Hostname</button>
+        </div>
     </div>   
 
     <!-- Popup for reboot confirmation -->
@@ -113,6 +127,25 @@
 
         document.getElementById('reboot-later').addEventListener('click', function() {
             document.getElementById('reboot-popup').style.display = 'none';
+        });
+
+        document.getElementById('change-hostname-button').addEventListener('click', function() {
+            const newHostname = document.getElementById('hostname-input').value;
+            if (newHostname.match(/^[a-zA-Z0-9_-]+$/)) {
+                fetch('/change_mdns', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ hostname: newHostname })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message); // Alert the user about the successful update
+                });
+            } else {
+                alert('Invalid hostname. Only letters, numbers, underscores, and hyphens are allowed.');
+            }
         });
     </script>
 </body>

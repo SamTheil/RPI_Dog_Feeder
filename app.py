@@ -1,9 +1,10 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
+from flask import Flask, render_template, request, jsonify
 import os
 import time
 import json
 from threading import Thread
 from dispenserclass import dispenserclass
+from MDNSConfigurator import MdnsConfigurator
 
 time.sleep(5)
 
@@ -11,6 +12,7 @@ app = Flask(__name__)
 app.secret_key = 'supersecretkey'
 
 dispenser = dispenserclass()
+mdnsconfigurator = MdnsConfigurator()
 servo_angle = 0
 
 # Paths to data files
@@ -150,6 +152,12 @@ def test_servo_range():
 @app.route('/dispense_treat', methods=['POST'])
 def dispense_treat():
     dispenser.dispense_treat(get_food_angle,dispense_food_angle)
+
+@app.route('/change_mdns', methods=['POST'])
+def change_mdns():
+    new_hostname = request.json['hostname']
+    mdnsconfigurator.set_hostname(new_hostname)
+    return jsonify({'message': 'mDNS configuration updated successfully'})
 
 if __name__ == '__main__':
     dispenser.servo.SetServoAngle(get_food_angle)
