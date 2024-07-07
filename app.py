@@ -3,6 +3,7 @@ import os
 import time
 import json
 from threading import Thread
+from crontab import CronTab
 from dispenserclass import dispenserclass
 from MDNSConfigurator import MdnsConfigurator
 from GitHubUpdater import GitHubUpdater
@@ -34,6 +35,27 @@ def read_data():
 def write_data(data):
     with open(data_path, 'w') as data_file:
         json.dump(data, data_file, indent=4)
+
+def create_cron_job(hour, minute, url):
+    cron = CronTab(user=True)
+    job = cron.new(command=f'curl -X POST {url}')
+    job.setall(f'{minute} {hour} * * *')
+    cron.write()
+
+def clear_cron_jobs():
+    cron = CronTab(user=True)
+    cron.remove_all()
+    cron.write()
+
+def schedule_meals():
+    data = read_data()
+    meals = data.get('meals', [])
+    clear_cron_jobs()
+    for meal in meals:
+        meal_time = meal['mealTime']
+        hour, minute = meal_time.split(':')
+        url = f'http://localhost:80/dispense_meal?quantity=10&get_food_angle={get_food_angle}&dispense_food_angle={dispense_food_angle}'
+        create_cron_job(hour, minute, url)
 
 data = read_data()
 get_food_angle = data['food_retrieve_angle']
@@ -173,11 +195,22 @@ def update_meal_schedule():
     data = read_data()
     data['meals'] = meals
     write_data(data)
+    schedule_meals()
     return jsonify({'status': 'success', 'message': 'Meal schedule updated successfully'})
+
+@app.route('/dispense_meal', methods=['POST'])
+def dispense_meal():
+    quantity = request.args.get('quantity', default=10, type=int)
+    get_food_angle = request.args.get('get_food_angle', type=float)
+    dispense_food_angle = request.args.get('dispense_food_angle', type=float)
+    dispenser.dispense_food(quantity, get_food_angle, dispense_food_angle)
+    return jsonify({'status': 'success', 'message': 'Meal dispensed successfully'})
 
 if __name__ == '__main__':
     dispenser.servo.SetServoAngle(get_food_angle)
     time.sleep(1.5)
     dispenser.servo.StopServoTorque()
+    
+    schedule_meals()  # Schedule meals on startup
 
     app.run(host='0.0.0.0', port=80)
