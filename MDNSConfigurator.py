@@ -32,17 +32,22 @@ class MdnsConfigurator:
         subprocess.run(["sudo", "sed", "-i", f"/\\[server\\]/a host-name={new_hostname}", self.avahi_conf], check=True)
         subprocess.run(["sudo", "sed", "-i", "/\\[server\\]/a ratelimit-burst=1000", self.avahi_conf], check=True)
         subprocess.run(["sudo", "sed", "-i", "/\\[server\\]/a ratelimit-interval-usec=1000000", self.avahi_conf], check=True)
-        if not subprocess.run(["sudo", "grep", "-q", "^log-level=", self.avahi_conf], check=False).returncode == 0:
-            subprocess.run(["sudo", "sed", "-i", "/\\[server\\]/a log-level=debug", self.avahi_conf], check=True)
         print(f"Avahi daemon configured in {self.avahi_conf}")
 
     def _restart_avahi_daemon(self):
-        subprocess.run(["sudo", "systemctl", "restart", "avahi-daemon"], check=True)
+        result = subprocess.run(["sudo", "systemctl", "restart", "avahi-daemon"], check=False)
+        if result.returncode != 0:
+            print("Failed to restart avahi-daemon service. Checking status...")
+            subprocess.run(["sudo", "systemctl", "status", "avahi-daemon", "--no-pager"])
+            raise subprocess.CalledProcessError(result.returncode, result.args)
         print("Avahi daemon restarted")
 
 # Usage
 if __name__ == "__main__":
     mdns_configurator = MdnsConfigurator()
-    new_hostname = "feeder2"
-    mdns_configurator.set_hostname(new_hostname)
-    print(f"mDNS name changed to {new_hostname}.local")
+    new_hostname = "feedera"
+    try:
+        mdns_configurator.set_hostname(new_hostname)
+        print(f"mDNS name changed to {new_hostname}.local")
+    except subprocess.CalledProcessError as e:
+        print(f"An error occurred: {e}")
