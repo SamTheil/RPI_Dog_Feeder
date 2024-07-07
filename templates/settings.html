@@ -14,6 +14,15 @@
 
     #menu {
         text-align: center;
+        margin-top: 20px;
+    }
+
+    .button-group {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 15px;
+        margin-bottom: 20px;
     }
 
     .button {
@@ -24,7 +33,6 @@
         color: white;
         cursor: pointer;
         text-align: center;
-        margin-top: 20px;
     }
 
     .input-box {
@@ -78,13 +86,15 @@
 
 <body>
     <div class="centered-container">
+        <h1>Settings</h1>
         <div id="menu">
-            <h1>Settings</h1>
-            <button id="reboot-button" class="button">Reboot</button>
-            <button id="check-updates-button" class="button">Check for Updates</button>
-            <button id="update-button" class="button">Update</button>
+            <div class="button-group">
+                <button id="reboot-button" class="button">Reboot</button>
+                <button id="check-updates-button" class="button">Check for Updates</button>
+                <button id="update-button" class="button">Update</button>
+            </div>
             <h2>Change mDNS Hostname</h2>
-            <input type="text" id="hostname-input" class="input-box" pattern="[a-zA-Z0-9_-]+" title="Only letters, numbers, underscores, and hyphens are allowed">
+            <input type="text" id="hostname-input" class="input-box" pattern="[a-zA-Z0-9_-]+">
             <button id="change-hostname-button" class="button">Change Hostname</button>
         </div>
     </div>   
