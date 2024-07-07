@@ -80,6 +80,7 @@
     <div class="centered-container">
         <div id="menu">
             <h1>Settings</h1>
+            <button id="reboot-button" class="button">Reboot</button>
             <button id="check-updates-button" class="button">Check for Updates</button>
             <button id="update-button" class="button">Update</button>
             <h2>Change mDNS Hostname</h2>
@@ -103,7 +104,38 @@
         </div>
     </div>
 
+    <!-- Popup for reboot confirmation -->
+    <div id="reboot-popup" class="popup">
+        <div class="popup-content">
+            <h2>Are you sure you want to reboot?</h2>
+            <button id="reboot-now">Reboot Now</button>
+            <button id="reboot-later">Cancel</button>
+        </div>
+    </div>
+
     <script>
+        document.getElementById('reboot-button').addEventListener('click', function() {
+            document.getElementById('reboot-popup').style.display = 'flex';
+        });
+
+        document.getElementById('reboot-now').addEventListener('click', function() {
+            document.getElementById('reboot-popup').style.display = 'none';
+            document.getElementById('rebooting-popup').style.display = 'flex';
+            
+            fetch('/reboot_now', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message); // Alert the user about rebooting now
+                    setTimeout(function() {
+                        window.open('','_self').close();
+                    }, 3000); // Wait 3 seconds before closing the tab
+                });
+        });
+
+        document.getElementById('reboot-later').addEventListener('click', function() {
+            document.getElementById('reboot-popup').style.display = 'none';
+        });
+
         document.getElementById('check-updates-button').addEventListener('click', function() {
             fetch('/check_updates')
                 .then(response => response.json())

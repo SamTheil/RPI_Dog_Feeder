@@ -1,34 +1,34 @@
-import os
 import subprocess
-import sys
+import os
 
 class GitHubUpdater:
     def __init__(self, repo_dir):
         self.repo_dir = repo_dir
-    
+        self.configure_safe_directory()
+
+    def configure_safe_directory(self):
+        # Set the repository as a safe directory
+        subprocess.run(["git", "config", "--global", "--add", "safe.directory", self.repo_dir])
+
     def check_for_updates(self):
-        # Navigate to the repository directory
         os.chdir(self.repo_dir)
-        # Fetch updates from the remote repository
         result = subprocess.run(["git", "fetch"], capture_output=True, text=True)
         if result.returncode != 0:
             return {"status": "error", "message": result.stderr}
-
-        # Check for changes between local and remote
         result = subprocess.run(["git", "status", "-uno"], capture_output=True, text=True)
         if result.returncode != 0:
             return {"status": "error", "message": result.stderr}
-        
         if "Your branch is up to date" in result.stdout:
             return {"status": "up-to-date"}
         else:
             return {"status": "update-available"}
 
     def update_repo(self):
-        # Navigate to the repository directory
         os.chdir(self.repo_dir)
-        # Pull updates from the remote repository
         result = subprocess.run(["git", "pull"], capture_output=True, text=True)
         if result.returncode != 0:
             return {"status": "error", "message": result.stderr}
         return {"status": "updated", "message": result.stdout}
+
+    def reboot_device(self):
+        subprocess.run(["sudo", "reboot"])
