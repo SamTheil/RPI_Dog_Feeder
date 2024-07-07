@@ -208,9 +208,9 @@
         const bannerContainer = document.getElementById('banner-container');
         const banners = Array.from(bannerContainer.getElementsByClassName('banner'));
         return banners.map(banner => {
-            const mealName = banner.querySelector('.meal-name').innerText;
+            const mealName = banner.querySelector('.meal-name').innerText.split(': ')[1];
             const mealTime = banner.getAttribute('data-time');
-            const mealQuantity = banner.querySelector('.meal-quantity').innerText.split(' ')[0];
+            const mealQuantity = banner.querySelector('.meal-quantity').innerText.split(': ')[1].split(' ')[0];
             return { mealName, mealTime, mealQuantity };
         });
     }
@@ -268,7 +268,7 @@
         banner.querySelector('.edit-icon').addEventListener('click', function() {
             const mealDetails = banner.querySelector('.meal-name').innerText.split(': ')[1];
             const mealTime = banner.getAttribute('data-time');
-            const mealQuantity = banner.querySelector('.meal-quantity').innerText.split(' ')[0];
+            const mealQuantity = banner.querySelector('.meal-quantity').innerText.split(': ')[1].split(' ')[0];
 
             document.getElementById('meal-time').value = mealTime;
             document.getElementById('meal-quantity').value = mealQuantity;
@@ -318,4 +318,5 @@
         });
     });
 </script>
+
 {% endblock %}
