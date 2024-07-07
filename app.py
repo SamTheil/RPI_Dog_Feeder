@@ -8,6 +8,7 @@ from dispenserclass import dispenserclass
 from MDNSConfigurator import MdnsConfigurator
 from GitHubUpdater import GitHubUpdater
 import socket
+import logging
 
 time.sleep(5)
 
@@ -21,6 +22,8 @@ servo_angle = 0
 # Paths to data files
 template_path = 'data_template.json'
 data_path = 'data.json'
+
+logging.basicConfig(filename='/var/log/feeder_cron.log', level=logging.DEBUG, format='%(asctime)s %(message)s')
 
 if not os.path.exists(data_path):
     with open(template_path, 'r') as template_file:
@@ -37,12 +40,15 @@ def write_data(data):
         json.dump(data, data_file, indent=4)
 
 def create_cron_job(hour, minute, url):
+    logging.debug(f'Creating cron job for {hour}:{minute} with URL {url}')
     cron = CronTab(user=True)
-    job = cron.new(command=f'curl -X POST {url}')
+    job = cron.new(command=f'/usr/bin/curl -X POST {url} >> /var/log/feeder_cron.log 2>&1')
     job.setall(f'{minute} {hour} * * *')
     cron.write()
+    logging.debug(f'Cron job created: {job}')
 
 def clear_cron_jobs():
+    logging.debug('Clearing all cron jobs')
     cron = CronTab(user=True)
     cron.remove_all()
     cron.write()
@@ -56,6 +62,7 @@ def schedule_meals():
         hour, minute = meal_time.split(':')
         url = f'http://localhost:80/dispense_meal?quantity=10&get_food_angle={get_food_angle}&dispense_food_angle={dispense_food_angle}'
         create_cron_job(hour, minute, url)
+        logging.debug(f'Scheduled meal at {hour}:{minute} with URL {url}')
 
 data = read_data()
 get_food_angle = data['food_retrieve_angle']
@@ -207,10 +214,12 @@ def dispense_meal():
     return jsonify({'status': 'success', 'message': 'Meal dispensed successfully'})
 
 if __name__ == '__main__':
+    logging.debug('Starting application')
     dispenser.servo.SetServoAngle(get_food_angle)
     time.sleep(1.5)
     dispenser.servo.StopServoTorque()
     
     schedule_meals()  # Schedule meals on startup
+    logging.debug('Scheduled meals on startup')
 
     app.run(host='0.0.0.0', port=80)
