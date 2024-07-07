@@ -6,6 +6,7 @@ from threading import Thread
 from dispenserclass import dispenserclass
 from MDNSConfigurator import MdnsConfigurator
 from GitHubUpdater import GitHubUpdater
+import socket
 
 time.sleep(5)
 
@@ -158,6 +159,11 @@ def update_now():
     if result["status"] == "updated":
         updater.reboot_device()
     return jsonify(result)
+
+@app.route('/get_current_hostname', methods=['GET'])
+def get_current_hostname():
+    current_hostname = socket.gethostname()
+    return jsonify({'hostname': current_hostname})
 
 if __name__ == '__main__':
     dispenser.servo.SetServoAngle(get_food_angle)

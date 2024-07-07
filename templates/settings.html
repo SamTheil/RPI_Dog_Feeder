@@ -82,18 +82,22 @@
         background-color: #dc3545;
         color: white;
     }
+
+    #change_mdns_heading{
+        margin-bottom: 5px;
+    }
 </style>
 
 <body>
     <div class="centered-container">
-        <h1>Settings</h1>
         <div id="menu">
+            <h1>Settings</h1>
             <div class="button-group">
                 <button id="reboot-button" class="button">Reboot</button>
                 <button id="check-updates-button" class="button">Check for Updates</button>
                 <button id="update-button" class="button">Update</button>
             </div>
-            <h2>Change mDNS Hostname</h2>
+            <h2 id="change_mdns_heading">Change mDNS Hostname</h2>
             <input type="text" id="hostname-input" class="input-box" pattern="[a-zA-Z0-9_-]+">
             <button id="change-hostname-button" class="button">Change Hostname</button>
         </div>
@@ -200,6 +204,16 @@
             } else {
                 alert('Invalid hostname. Only letters, numbers, underscores, and hyphens are allowed.');
             }
+        });
+
+        // Fetch current hostname on page load
+        window.addEventListener('load', function() {
+            fetch('/get_current_hostname')
+                .then(response => response.json())
+                .then(data => {
+                    const hostnameInput = document.getElementById('hostname-input');
+                    hostnameInput.value = data.hostname + '.local';
+                });
         });
     </script>
 </body>
