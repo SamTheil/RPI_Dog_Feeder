@@ -1,4 +1,4 @@
-  import subprocess
+import subprocess
 
 class MdnsConfigurator:
     def __init__(self):
