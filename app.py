@@ -44,6 +44,7 @@ dispense_food_angle = data['food_dispense_angle']
 updater = GitHubUpdater(os.path.dirname(os.path.abspath(__file__)))
 
 scheduler = BackgroundScheduler()
+scheduler.start()
 
 def schedule_meals():
     data = read_data()
@@ -59,7 +60,6 @@ def schedule_meals():
             args=[10, get_food_angle, dispense_food_angle], 
             id=f"{meal['mealName']}-{meal['mealTime']}"
         )
-    scheduler.start()
 
 @app.route('/')
 def home():

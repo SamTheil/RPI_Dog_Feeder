@@ -62,7 +62,7 @@ systemctl status avahi-daemon --no-pager
 echo "Installing required packages..."
 apt-get install -y python3-flask python3-git python3-requests
 
-sudo pip install python-crontab
+pip install apscheduler
 
 sudo apt update
 sudo apt upgrade -y
