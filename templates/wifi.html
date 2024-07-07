@@ -78,6 +78,45 @@
         background-color: #dc3545;
         color: white;
     }
+
+    /* Responsive styles */
+    @media (max-width: 768px) {
+        h1 {
+            font-size: 24px;
+        }
+
+        form {
+            width: 90%;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            padding: 8px;
+        }
+
+        #change_wifi_button {
+            padding: 8px 16px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        h1 {
+            font-size: 18px;
+        }
+
+        form {
+            width: 80%;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            padding: 6px;
+        }
+
+        #change_wifi_button {
+            padding: 6px 12px;
+        }
+    }
 </style>
 
 <body>
