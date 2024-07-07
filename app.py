@@ -5,7 +5,7 @@ import json
 from threading import Thread
 from dispenserclass import dispenserclass
 from MDNSConfigurator import MdnsConfigurator
-from github_updater import GitHubUpdater
+from GitHubUpdater import GitHubUpdater
 
 time.sleep(5)
 
