@@ -28,6 +28,9 @@ class MdnsConfigurator:
         print("Hostname changes applied and systemd-hostnamed restarted")
 
     def _configure_avahi_daemon(self, new_hostname):
+        # Remove any existing log-level configuration key
+        subprocess.run(["sudo", "sed", "-i", "/^log-level=/d", self.avahi_conf], check=True)
+        # Configure avahi-daemon with the new hostname
         subprocess.run(["sudo", "sed", "-i", "/^host-name=/d", self.avahi_conf], check=True)
         subprocess.run(["sudo", "sed", "-i", f"/\\[server\\]/a host-name={new_hostname}", self.avahi_conf], check=True)
         subprocess.run(["sudo", "sed", "-i", "/\\[server\\]/a ratelimit-burst=1000", self.avahi_conf], check=True)
@@ -45,7 +48,7 @@ class MdnsConfigurator:
 # Usage
 if __name__ == "__main__":
     mdns_configurator = MdnsConfigurator()
-    new_hostname = "feedera"
+    new_hostname = "dogfeeder"
     try:
         mdns_configurator.set_hostname(new_hostname)
         print(f"mDNS name changed to {new_hostname}.local")
