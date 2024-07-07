@@ -173,150 +173,168 @@
             <button id="cancel-delete-button" class="button">No</button>
         </div>
     </div>
-</body>
 
-<script>
-    let editingBanner = null;
+    <script>
+        let editingBanner = null;
+        const meals = {{ meals | tojson }};
 
-    function updateScheduleButton() {
-        const updateButton = document.getElementById('update-schedule-button');
-        updateButton.classList.remove('button-disabled');
-        updateButton.classList.add('button');
-        updateButton.disabled = false;
-    }
+        function updateScheduleButton() {
+            const updateButton = document.getElementById('update-schedule-button');
+            updateButton.classList.remove('button-disabled');
+            updateButton.classList.add('button');
+            updateButton.disabled = false;
+        }
 
-    function formatTimeToAMPM(time) {
-        const [hours, minutes] = time.split(':');
-        const hoursInt = parseInt(hours);
-        const ampm = hoursInt >= 12 ? 'PM' : 'AM';
-        const hours12 = hoursInt % 12 || 12;
-        return `${hours12}:${minutes} ${ampm}`;
-    }
+        function formatTimeToAMPM(time) {
+            const [hours, minutes] = time.split(':');
+            const hoursInt = parseInt(hours);
+            const ampm = hoursInt >= 12 ? 'PM' : 'AM';
+            const hours12 = hoursInt % 12 || 12;
+            return `${hours12}:${minutes} ${ampm}`;
+        }
 
-    function sortBanners() {
-        const bannerContainer = document.getElementById('banner-container');
-        const banners = Array.from(bannerContainer.getElementsByClassName('banner'));
-        banners.sort((a, b) => {
-            const timeA = a.getAttribute('data-time');
-            const timeB = b.getAttribute('data-time');
-            return timeA.localeCompare(timeB);
+        function sortBanners() {
+            const bannerContainer = document.getElementById('banner-container');
+            const banners = Array.from(bannerContainer.getElementsByClassName('banner'));
+            banners.sort((a, b) => {
+                const timeA = a.getAttribute('data-time');
+                const timeB = b.getAttribute('data-time');
+                return timeA.localeCompare(timeB);
+            });
+            banners.forEach(banner => bannerContainer.appendChild(banner));
+        }
+
+        function gatherMealsData() {
+            const bannerContainer = document.getElementById('banner-container');
+            const banners = Array.from(bannerContainer.getElementsByClassName('banner'));
+            return banners.map(banner => {
+                const mealName = banner.querySelector('.meal-name').innerText.split(': ')[1];
+                const mealTime = banner.getAttribute('data-time');
+                const mealQuantity = banner.querySelector('.meal-quantity').innerText.split(': ')[1].split(' ')[0];
+                return { mealName, mealTime, mealQuantity };
+            });
+        }
+
+        document.getElementById('dispense_treat').addEventListener('click', function() {
+            fetch('/test_servo_range', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Servo range test completed.');
+            });
         });
-        banners.forEach(banner => bannerContainer.appendChild(banner));
-    }
 
-    function gatherMealsData() {
-        const bannerContainer = document.getElementById('banner-container');
-        const banners = Array.from(bannerContainer.getElementsByClassName('banner'));
-        return banners.map(banner => {
-            const mealName = banner.querySelector('.meal-name').innerText.split(': ')[1];
-            const mealTime = banner.getAttribute('data-time');
-            const mealQuantity = banner.querySelector('.meal-quantity').innerText.split(': ')[1].split(' ')[0];
-            return { mealName, mealTime, mealQuantity };
+        document.getElementById('add-meal-button').addEventListener('click', function() {
+            editingBanner = null;
+            document.getElementById('popup-title').innerText = 'Add Meal';
+            document.getElementById('create-meal-button').innerText = 'Create';
+            document.getElementById('meal-time').value = '';
+            document.getElementById('meal-quantity').value = '';
+            document.getElementById('meal-name').value = '';
+            document.getElementById('add-meal-popup').style.display = 'flex';
         });
-    }
 
-    document.getElementById('dispense_treat').addEventListener('click', function() {
-        fetch('/test_servo_range', {
-            method: 'POST'
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log('Servo range test completed.');
-        });
-    });
+        document.getElementById('create-meal-button').addEventListener('click', function() {
+            const mealTime = document.getElementById('meal-time').value;
+            const mealQuantity = document.getElementById('meal-quantity').value;
+            const mealName = document.getElementById('meal-name').value;
 
-    document.getElementById('add-meal-button').addEventListener('click', function() {
-        editingBanner = null;
-        document.getElementById('popup-title').innerText = 'Add Meal';
-        document.getElementById('create-meal-button').innerText = 'Create';
-        document.getElementById('meal-time').value = '';
-        document.getElementById('meal-quantity').value = '';
-        document.getElementById('meal-name').value = '';
-        document.getElementById('add-meal-popup').style.display = 'flex';
-    });
+            if (mealTime && mealQuantity && mealName) {
+                const formattedTime = formatTimeToAMPM(mealTime);
+                if (editingBanner) {
+                    editingBanner.setAttribute('data-time', mealTime);
+                    editingBanner.innerHTML = `<span class="meal-name">Meal: ${mealName}</span>, <span class="meal-time">Time: ${formattedTime}</span>, <span class="meal-quantity">Quantity: ${mealQuantity} cups</span> <span class="edit-icon">✏️</span> <span class="delete-icon">🗑️</span>`;
+                    addBannerEventListeners(editingBanner);
+                } else {
+                    const bannerContainer = document.getElementById('banner-container');
+                    const newBanner = document.createElement('div');
+                    newBanner.className = 'banner';
+                    newBanner.setAttribute('data-time', mealTime);
+                    newBanner.innerHTML = `<span class="meal-name">Meal: ${mealName}</span>, <span class="meal-time">Time: ${formattedTime}</span>, <span class="meal-quantity">Quantity: ${mealQuantity} cups</span> <span class="edit-icon">✏️</span> <span class="delete-icon">🗑️</span>`;
+                    bannerContainer.appendChild(newBanner);
+                    addBannerEventListeners(newBanner);
+                }
 
-    document.getElementById('create-meal-button').addEventListener('click', function() {
-        const mealTime = document.getElementById('meal-time').value;
-        const mealQuantity = document.getElementById('meal-quantity').value;
-        const mealName = document.getElementById('meal-name').value;
-
-        if (mealTime && mealQuantity && mealName) {
-            const formattedTime = formatTimeToAMPM(mealTime);
-            if (editingBanner) {
-                editingBanner.setAttribute('data-time', mealTime);
-                editingBanner.innerHTML = `<span class="meal-name">Meal: ${mealName}</span>, <span class="meal-time">Time: ${formattedTime}</span>, <span class="meal-quantity">Quantity: ${mealQuantity} cups</span> <span class="edit-icon">✏️</span> <span class="delete-icon">🗑️</span>`;
-                addBannerEventListeners(editingBanner);
+                sortBanners();
+                updateScheduleButton();
+                document.getElementById('add-meal-popup').style.display = 'none';
             } else {
-                const bannerContainer = document.getElementById('banner-container');
+                alert('Please fill out all fields.');
+            }
+        });
+
+        function addBannerEventListeners(banner) {
+            banner.querySelector('.edit-icon').addEventListener('click', function() {
+                const mealDetails = banner.querySelector('.meal-name').innerText.split(': ')[1];
+                const mealTime = banner.getAttribute('data-time');
+                const mealQuantity = banner.querySelector('.meal-quantity').innerText.split(': ')[1].split(' ')[0];
+
+                document.getElementById('meal-time').value = mealTime;
+                document.getElementById('meal-quantity').value = mealQuantity;
+                document.getElementById('meal-name').value = mealDetails;
+                document.getElementById('popup-title').innerText = 'Edit Meal';
+                document.getElementById('create-meal-button').innerText = 'Confirm';
+                document.getElementById('add-meal-popup').style.display = 'flex';
+                editingBanner = banner;
+            });
+
+            banner.querySelector('.delete-icon').addEventListener('click', function() {
+                document.getElementById('delete-confirm-popup').style.display = 'flex';
+                document.getElementById('confirm-delete-button').onclick = function() {
+                    banner.remove();
+                    updateScheduleButton();
+                    document.getElementById('delete-confirm-popup').style.display = 'none';
+                };
+                document.getElementById('cancel-delete-button').onclick = function() {
+                    document.getElementById('delete-confirm-popup').style.display = 'none';
+                };
+            });
+        }
+
+        window.addEventListener('click', function(event) {
+            const addMealPopup = document.getElementById('add-meal-popup');
+            const deleteConfirmPopup = document.getElementById('delete-confirm-popup');
+            if (event.target === addMealPopup) {
+                addMealPopup.style.display = 'none';
+            }
+            if (event.target === deleteConfirmPopup) {
+                deleteConfirmPopup.style.display = 'none';
+            }
+        });
+
+        document.getElementById('update-schedule-button').addEventListener('click', function() {
+            const meals = gatherMealsData();
+            fetch('/update_meal_schedule', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ meals })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+            });
+        });
+
+        function renderMeals(meals) {
+            const bannerContainer = document.getElementById('banner-container');
+            meals.forEach(meal => {
+                const mealTime = formatTimeToAMPM(meal.mealTime);
                 const newBanner = document.createElement('div');
                 newBanner.className = 'banner';
-                newBanner.setAttribute('data-time', mealTime);
-                newBanner.innerHTML = `<span class="meal-name">Meal: ${mealName}</span>, <span class="meal-time">Time: ${formattedTime}</span>, <span class="meal-quantity">Quantity: ${mealQuantity} cups</span> <span class="edit-icon">✏️</span> <span class="delete-icon">🗑️</span>`;
+                newBanner.setAttribute('data-time', meal.mealTime);
+                newBanner.innerHTML = `<span class="meal-name">Meal: ${meal.mealName}</span>, <span class="meal-time">Time: ${mealTime}</span>, <span class="meal-quantity">Quantity: ${meal.mealQuantity} cups</span> <span class="edit-icon">✏️</span> <span class="delete-icon">🗑️</span>`;
                 bannerContainer.appendChild(newBanner);
                 addBannerEventListeners(newBanner);
-            }
-
+            });
             sortBanners();
-            updateScheduleButton();
-            document.getElementById('add-meal-popup').style.display = 'none';
-        } else {
-            alert('Please fill out all fields.');
         }
-    });
 
-    function addBannerEventListeners(banner) {
-        banner.querySelector('.edit-icon').addEventListener('click', function() {
-            const mealDetails = banner.querySelector('.meal-name').innerText.split(': ')[1];
-            const mealTime = banner.getAttribute('data-time');
-            const mealQuantity = banner.querySelector('.meal-quantity').innerText.split(': ')[1].split(' ')[0];
-
-            document.getElementById('meal-time').value = mealTime;
-            document.getElementById('meal-quantity').value = mealQuantity;
-            document.getElementById('meal-name').value = mealDetails;
-            document.getElementById('popup-title').innerText = 'Edit Meal';
-            document.getElementById('create-meal-button').innerText = 'Confirm';
-            document.getElementById('add-meal-popup').style.display = 'flex';
-            editingBanner = banner;
-        });
-
-        banner.querySelector('.delete-icon').addEventListener('click', function() {
-            document.getElementById('delete-confirm-popup').style.display = 'flex';
-            document.getElementById('confirm-delete-button').onclick = function() {
-                banner.remove();
-                updateScheduleButton();
-                document.getElementById('delete-confirm-popup').style.display = 'none';
-            };
-            document.getElementById('cancel-delete-button').onclick = function() {
-                document.getElementById('delete-confirm-popup').style.display = 'none';
-            };
-        });
-    }
-
-    window.addEventListener('click', function(event) {
-        const addMealPopup = document.getElementById('add-meal-popup');
-        const deleteConfirmPopup = document.getElementById('delete-confirm-popup');
-        if (event.target === addMealPopup) {
-            addMealPopup.style.display = 'none';
-        }
-        if (event.target === deleteConfirmPopup) {
-            deleteConfirmPopup.style.display = 'none';
-        }
-    });
-
-    document.getElementById('update-schedule-button').addEventListener('click', function() {
-        const meals = gatherMealsData();
-        fetch('/update_meal_schedule', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ meals })
-        })
-        .then(response => response.json())
-        .then(data => {
-            alert(data.message);
-        });
-    });
-</script>
-
+        window.onload = function() {
+            renderMeals(meals);
+        };
+    </script>
+</body>
 {% endblock %}

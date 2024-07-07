@@ -43,7 +43,9 @@ updater = GitHubUpdater(os.path.dirname(os.path.abspath(__file__)))
 
 @app.route('/')
 def home():
-    return render_template('index.html')
+    data = read_data()
+    meals = data.get('meals', [])
+    return render_template('index.html', meals=meals)
 
 @app.route('/wifi')
 def wifi_settings():
