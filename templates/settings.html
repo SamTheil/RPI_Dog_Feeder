@@ -80,50 +80,65 @@
     <div class="centered-container">
         <div id="menu">
             <h1>Settings</h1>
-            <button id="reboot-button" class="button">Reboot</button>
+            <button id="check-updates-button" class="button">Check for Updates</button>
+            <button id="update-button" class="button">Update</button>
             <h2>Change mDNS Hostname</h2>
             <input type="text" id="hostname-input" class="input-box" pattern="[a-zA-Z0-9_-]+" title="Only letters, numbers, underscores, and hyphens are allowed">
             <button id="change-hostname-button" class="button">Change Hostname</button>
         </div>
     </div>   
 
-    <!-- Popup for reboot confirmation -->
-    <div id="reboot-popup" class="popup">
+    <!-- Popup for update status -->
+    <div id="update-status-popup" class="popup">
         <div class="popup-content">
-            <h2>Are you sure you want to reboot?</h2>
-            <button id="reboot-now">Reboot Now</button>
-            <button id="reboot-later">Cancel</button>
+            <h2 id="update-status-message"></h2>
+            <button id="update-status-ok" class="button">OK</button>
         </div>
     </div>
 
-    <!-- Popup for rebooting -->
-    <div id="rebooting-popup" class="popup">
+    <!-- Popup for updating and rebooting -->
+    <div id="updating-popup" class="popup">
         <div class="popup-content">
-            <h2>Rebooting...</h2>
+            <h2>Updating and Rebooting...</h2>
         </div>
     </div>
 
     <script>
-        document.getElementById('reboot-button').addEventListener('click', function() {
-            document.getElementById('reboot-popup').style.display = 'flex';
-        });
-
-        document.getElementById('reboot-now').addEventListener('click', function() {
-            document.getElementById('reboot-popup').style.display = 'none';
-            document.getElementById('rebooting-popup').style.display = 'flex';
-            
-            fetch('/reboot_now', { method: 'POST' })
+        document.getElementById('check-updates-button').addEventListener('click', function() {
+            fetch('/check_updates')
                 .then(response => response.json())
                 .then(data => {
-                    alert(data.message); // Alert the user about rebooting now
-                    setTimeout(function() {
-                        window.open('','_self').close();
-                    }, 3000); // Wait 3 seconds before closing the tab
+                    let message = '';
+                    if (data.status === 'up-to-date') {
+                        message = 'Your system is up to date.';
+                    } else if (data.status === 'update-available') {
+                        message = 'Updates are available.';
+                    } else {
+                        message = 'Error checking for updates: ' + data.message;
+                    }
+                    document.getElementById('update-status-message').innerText = message;
+                    document.getElementById('update-status-popup').style.display = 'flex';
                 });
         });
 
-        document.getElementById('reboot-later').addEventListener('click', function() {
-            document.getElementById('reboot-popup').style.display = 'none';
+        document.getElementById('update-button').addEventListener('click', function() {
+            document.getElementById('updating-popup').style.display = 'flex';
+            
+            fetch('/update_now', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'updated') {
+                        document.getElementById('updating-popup').style.display = 'none';
+                        alert('System updated and rebooting now...');
+                    } else {
+                        document.getElementById('updating-popup').style.display = 'none';
+                        alert('Error updating system: ' + data.message);
+                    }
+                });
+        });
+
+        document.getElementById('update-status-ok').addEventListener('click', function() {
+            document.getElementById('update-status-popup').style.display = 'none';
         });
 
         document.getElementById('change-hostname-button').addEventListener('click', function() {
@@ -138,7 +153,7 @@
                 })
                 .then(response => response.json())
                 .then(data => {
-                    alert(data.message); // Alert the user about the successful update
+                    alert(data.message);
                 });
             } else {
                 alert('Invalid hostname. Only letters, numbers, underscores, and hyphens are allowed.');

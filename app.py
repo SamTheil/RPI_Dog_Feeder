@@ -6,6 +6,36 @@ from threading import Thread
 from dispenserclass import dispenserclass
 from MDNSConfigurator import MdnsConfigurator
 
+# GitHubUpdater class definition
+import subprocess
+
+class GitHubUpdater:
+    def __init__(self, repo_dir):
+        self.repo_dir = repo_dir
+    
+    def check_for_updates(self):
+        os.chdir(self.repo_dir)
+        result = subprocess.run(["git", "fetch"], capture_output=True, text=True)
+        if result.returncode != 0:
+            return {"status": "error", "message": result.stderr}
+        result = subprocess.run(["git", "status", "-uno"], capture_output=True, text=True)
+        if result.returncode != 0:
+            return {"status": "error", "message": result.stderr}
+        if "Your branch is up to date" in result.stdout:
+            return {"status": "up-to-date"}
+        else:
+            return {"status": "update-available"}
+
+    def update_repo(self):
+        os.chdir(self.repo_dir)
+        result = subprocess.run(["git", "pull"], capture_output=True, text=True)
+        if result.returncode != 0:
+            return {"status": "error", "message": result.stderr}
+        return {"status": "updated", "message": result.stdout}
+    
+    def reboot_device(self):
+        subprocess.run(["sudo", "reboot"])
+
 time.sleep(5)
 
 app = Flask(__name__)
@@ -19,19 +49,16 @@ servo_angle = 0
 template_path = 'data_template.json'
 data_path = 'data.json'
 
-# Copy template to data.json if it doesn't exist
 if not os.path.exists(data_path):
     with open(template_path, 'r') as template_file:
         data = json.load(template_file)
     with open(data_path, 'w') as data_file:
         json.dump(data, data_file, indent=4)
 
-# Function to read data
 def read_data():
     with open(data_path, 'r') as data_file:
         return json.load(data_file)
 
-# Function to write data
 def write_data(data):
     with open(data_path, 'w') as data_file:
         json.dump(data, data_file, indent=4)
@@ -39,6 +66,8 @@ def write_data(data):
 data = read_data()
 get_food_angle = data['food_retrieve_angle']
 dispense_food_angle = data['food_dispense_angle']
+
+updater = GitHubUpdater(os.path.dirname(os.path.abspath(__file__)))
 
 @app.route('/')
 def home():
@@ -61,7 +90,6 @@ def change_wifi():
     ssid = request.json['ssid']
     password = request.json['password']
     
-    # Create a wpa_supplicant.conf content
     wpa_supplicant_conf = f"""
     country=US
     ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
@@ -73,7 +101,6 @@ def change_wifi():
     }}
     """
 
-    # Write the new configuration to wpa_supplicant.conf
     with open('/etc/wpa_supplicant/wpa_supplicant.conf', 'w') as f:
         f.write(wpa_supplicant_conf)
 
@@ -85,11 +112,8 @@ def delayed_reboot():
 
 @app.route('/reboot_now', methods=['POST'])
 def reboot_now():
-    # Start the reboot in a new thread to avoid blocking the response
     reboot_thread = Thread(target=delayed_reboot)
     reboot_thread.start()
-
-    # Send the response immediately
     return jsonify({'message': 'Rebooting now...'})
 
 @app.route('/reboot_later', methods=['POST'])
@@ -135,29 +159,34 @@ def test_servo_range():
     data = read_data()
     retrieve_angle = data.get('food_retrieve_angle', 0)
     dispense_angle = data.get('food_dispense_angle', 1)
-    
-    # Move to retrieve angle
     dispenser.servo.SetServoAngle(retrieve_angle)
-    time.sleep(1.5)  # Adjust sleep time as needed
-    
-    # Move to dispense angle
+    time.sleep(1.5)
     dispenser.servo.SetServoAngle(dispense_angle)
-    time.sleep(1.5)  # Adjust sleep time as needed
-    
-    # Move back to retrieve angle
+    time.sleep(1.5)
     dispenser.servo.SetServoAngle(retrieve_angle)
-    
     return jsonify({'message': 'Servo range test completed'})
 
 @app.route('/dispense_treat', methods=['POST'])
 def dispense_treat():
-    dispenser.dispense_treat(get_food_angle,dispense_food_angle)
+    dispenser.dispense_treat(get_food_angle, dispense_food_angle)
 
 @app.route('/change_mdns', methods=['POST'])
 def change_mdns():
     new_hostname = request.json['hostname']
     mdnsconfigurator.set_hostname(new_hostname)
     return jsonify({'message': 'mDNS configuration updated successfully'})
+
+@app.route('/check_updates', methods=['GET'])
+def check_updates():
+    result = updater.check_for_updates()
+    return jsonify(result)
+
+@app.route('/update_now', methods=['POST'])
+def update_now():
+    result = updater.update_repo()
+    if result["status"] == "updated":
+        updater.reboot_device()
+    return jsonify(result)
 
 if __name__ == '__main__':
     dispenser.servo.SetServoAngle(get_food_angle)
