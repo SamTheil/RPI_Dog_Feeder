@@ -8,7 +8,7 @@ from MDNSConfigurator import MdnsConfigurator
 from GitHubUpdater import GitHubUpdater
 import socket
 from apscheduler.schedulers.background import BackgroundScheduler
-from datetime import datetime
+from datetime import datetime, timedelta
 
 time.sleep(5)
 
@@ -47,9 +47,32 @@ updater = GitHubUpdater(os.path.dirname(os.path.abspath(__file__)))
 scheduler = BackgroundScheduler()
 scheduler.start()
 
-def update_recent_meal(swipes):
+def format_recent_meal_message(swipes, meal_type="food"):
+    now = datetime.now()
+    time_str = now.strftime('%I:%M%p').lstrip('0')
+    if now.strftime('%p') == 'PM' and time_str.endswith('M'):
+        time_str = time_str[:-1] + ' PM'
+    elif now.strftime('%p') == 'AM' and time_str.endswith('M'):
+        time_str = time_str[:-1] + ' AM'
+
+    today = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    yesterday = today - timedelta(days=1)
+
+    if now >= today:
+        day_str = "today"
+    elif now >= yesterday:
+        day_str = "yesterday"
+    else:
+        day_str = now.strftime('%A')
+
+    if meal_type == "food":
+        return f"{swipes} swipes dispensed at {time_str} {day_str}"
+    elif meal_type == "treat":
+        return f"Treat dispensed at {time_str} {day_str}"
+
+def update_recent_meal(swipes, meal_type="food"):
     data = read_data()
-    data['recent_meal'] = f'Dispensed {swipes} swipes of food at ' + datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    data['recent_meal'] = format_recent_meal_message(swipes, meal_type)
     write_data(data)
 
 def schedule_meals():
@@ -174,7 +197,7 @@ def dispense_treat():
     print("Dispense treat endpoint called")
     dispenser.dispense_treat(get_food_angle, dispense_food_angle)
     data = read_data()
-    data['recent_meal'] = 'Treat dispensed at ' + datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    data['recent_meal'] = format_recent_meal_message(0, "treat")
     write_data(data)
     return jsonify({'message': 'Treat dispensed'})
 
@@ -241,7 +264,7 @@ def dispense_food():
         print(f"Data read from file: {data}")
 
         # Update the recent meal entry
-        data['recent_meal'] = f'Dispensed {swipes} swipes of food at ' + datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        data['recent_meal'] = format_recent_meal_message(swipes, "food")
         print(f"Updated data: {data}")
 
         # Write the updated data back to the file
