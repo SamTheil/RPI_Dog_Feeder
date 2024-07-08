@@ -167,6 +167,7 @@ def test_servo_range():
 @app.route('/dispense_treat', methods=['POST'])
 def dispense_treat():
     # Dispense treat logic here...
+    dispenser.dispense_treat(get_food_angle, dispense_food_angle)
     data = read_data()
     data['recent_meal'] = 'Treat dispensed at ' + datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     write_data(data)
@@ -216,6 +217,9 @@ def finish_calibration():
 def dispense_food():
     swipes = request.json.get('swipes')
     dispenser.dispense_food(swipes, get_food_angle, dispense_food_angle)
+    data = read_data()
+    data['recent_meal'] = f'Dispensed {swipes} swipes of food at ' + datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    write_data(data)
     return jsonify({'message': f'Dispensed {swipes} swipes of food'})
 
 if __name__ == '__main__':
