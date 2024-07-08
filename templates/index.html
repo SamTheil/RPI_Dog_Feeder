@@ -119,10 +119,16 @@
         border-radius: 5px;
         padding: 10px;
         margin-bottom: 20px;
+        margin-top: 10px;
         text-align: center;
         width: 80%;
         margin: 0 auto 20px auto;
         position: relative;
+    }
+
+    .banner-content {
+        display: inline-block;
+        width: calc(100% - 80px);
     }
 
     .banner .edit-icon,
@@ -247,14 +253,13 @@
                 const formattedTime = formatTimeToAMPM(mealTime);
                 if (editingBanner) {
                     editingBanner.setAttribute('data-time', mealTime);
-                    editingBanner.innerHTML = `<span class="meal-name">Meal: ${mealName}</span>, <span class="meal-time">Time: ${formattedTime}</span>, <span class="meal-quantity">Quantity: ${mealQuantity} cups</span> <span class="edit-icon">✏️</span> <span class="delete-icon">🗑️</span>`;
-                    addBannerEventListeners(editingBanner);
+                    editingBanner.querySelector('.banner-content').innerHTML = `<span class="meal-name">Meal: ${mealName}</span>, <span class="meal-time">Time: ${formattedTime}</span>, <span class="meal-quantity">Quantity: ${mealQuantity} cups</span>`;
                 } else {
                     const bannerContainer = document.getElementById('banner-container');
                     const newBanner = document.createElement('div');
                     newBanner.className = 'banner';
                     newBanner.setAttribute('data-time', mealTime);
-                    newBanner.innerHTML = `<span class="meal-name">Meal: ${mealName}</span>, <span class="meal-time">Time: ${formattedTime}</span>, <span class="meal-quantity">Quantity: ${mealQuantity} cups</span> <span class="edit-icon">✏️</span> <span class="delete-icon">🗑️</span>`;
+                    newBanner.innerHTML = `<div class="banner-content"><span class="meal-name">Meal: ${mealName}</span>, <span class="meal-time">Time: ${formattedTime}</span>, <span class="meal-quantity">Quantity: ${mealQuantity} cups</span></div> <span class="edit-icon">✏️</span> <span class="delete-icon">🗑️</span>`;
                     bannerContainer.appendChild(newBanner);
                     addBannerEventListeners(newBanner);
                 }
@@ -328,7 +333,7 @@
                 const newBanner = document.createElement('div');
                 newBanner.className = 'banner';
                 newBanner.setAttribute('data-time', meal.mealTime);
-                newBanner.innerHTML = `<span class="meal-name">Meal: ${meal.mealName}</span>, <span class="meal-time">Time: ${mealTime}</span>, <span class="meal-quantity">Quantity: ${meal.mealQuantity} cups</span> <span class="edit-icon">✏️</span> <span class="delete-icon">🗑️</span>`;
+                newBanner.innerHTML = `<div class="banner-content"><span class="meal-name">Meal: ${meal.mealName}</span>, <span class="meal-time">Time: ${mealTime}</span>, <span class="meal-quantity">Quantity: ${meal.mealQuantity} cups</span></div> <span class="edit-icon">✏️</span> <span class="delete-icon">🗑️</span>`;
                 bannerContainer.appendChild(newBanner);
                 addBannerEventListeners(newBanner);
             });
