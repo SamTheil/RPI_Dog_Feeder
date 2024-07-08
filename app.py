@@ -49,15 +49,18 @@ scheduler.start()
 def schedule_meals():
     data = read_data()
     meals = data.get('meals', [])
+    swipe_count = data.get('swipe_count', 10)  # Default to 10 if not set
     scheduler.remove_all_jobs()
     for meal in meals:
         meal_time = datetime.strptime(meal['mealTime'], '%H:%M')
+        quantity = int(meal.get('mealQuantity', 1))
+        swipes = swipe_count * quantity
         scheduler.add_job(
             dispenser.dispense_food, 
             'cron', 
             hour=meal_time.hour, 
             minute=meal_time.minute, 
-            args=[10, get_food_angle, dispense_food_angle], 
+            args=[swipes, get_food_angle, dispense_food_angle], 
             id=f"{meal['mealName']}-{meal['mealTime']}"
         )
 
@@ -195,6 +198,20 @@ def update_meal_schedule():
     write_data(data)
     schedule_meals()
     return jsonify({'status': 'success', 'message': 'Meal schedule updated successfully'})
+
+@app.route('/finish_calibration', methods=['POST'])
+def finish_calibration():
+    total_swipes = request.json.get('totalSwipes')
+    data = read_data()
+    data['swipe_count'] = total_swipes
+    write_data(data)
+    return jsonify({'message': 'Calibration completed successfully'})
+
+@app.route('/dispense_food', methods=['POST'])
+def dispense_food():
+    swipes = request.json.get('swipes')
+    dispenser.dispense_food(swipes, get_food_angle, dispense_food_angle)
+    return jsonify({'message': f'Dispensed {swipes} swipes of food'})
 
 if __name__ == '__main__':
     dispenser.servo.SetServoAngle(get_food_angle)

@@ -133,6 +133,7 @@
                 <button id="reboot-button" class="button">Reboot</button>
                 <button id="check-updates-button" class="button">Check for Updates</button>
                 <button id="update-button" class="button">Update</button>
+                <button id="calibrate-button" class="button">Calibrate Food Dispenser</button>
             </div>
             <h2 id="change_mdns_heading">Change Hostname</h2>
             <input type="text" id="hostname-input" class="input-box" pattern="[a-zA-Z0-9_-]+">
@@ -164,93 +165,82 @@
         </div>
     </div>
 
+    <!-- Popup for calibrating food dispenser -->
+    <div id="calibrate-popup" class="popup">
+        <div class="popup-content">
+            <h2>Calibrate Food Dispenser</h2>
+            <p>Follow the instructions to calibrate the food dispenser:</p>
+            <!-- Add your instructions here -->
+            <div class="button-group">
+                <button id="dispense-1-swipe" class="button">1 Swipe</button>
+                <button id="dispense-5-swipes" class="button">5 Swipes</button>
+                <button id="dispense-10-swipes" class="button">10 Swipes</button>
+            </div>
+            <div class="button-group">
+                <button id="finish-button" class="button">Finish</button>
+                <button id="cancel-button" class="button">Cancel</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        document.getElementById('reboot-button').addEventListener('click', function() {
-            document.getElementById('reboot-popup').style.display = 'flex';
+        let totalSwipes = 0;
+
+        document.getElementById('calibrate-button').addEventListener('click', function() {
+            totalSwipes = 0;
+            document.getElementById('calibrate-popup').style.display = 'flex';
         });
 
-        document.getElementById('reboot-now').addEventListener('click', function() {
-            document.getElementById('reboot-popup').style.display = 'none';
-            document.getElementById('rebooting-popup').style.display = 'flex';
-            
-            fetch('/reboot_now', { method: 'POST' })
-                .then(response => response.json())
-                .then(data => {
-                    alert(data.message); // Alert the user about rebooting now
-                    setTimeout(function() {
-                        window.open('','_self').close();
-                    }, 3000); // Wait 3 seconds before closing the tab
-                });
+        document.getElementById('dispense-1-swipe').addEventListener('click', function() {
+            totalSwipes += 1;
+            fetch('/dispense_food', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ swipes: 1 })
+            }).then(response => response.json())
+              .then(data => alert(data.message));
         });
 
-        document.getElementById('reboot-later').addEventListener('click', function() {
-            document.getElementById('reboot-popup').style.display = 'none';
+        document.getElementById('dispense-5-swipes').addEventListener('click', function() {
+            totalSwipes += 5;
+            fetch('/dispense_food', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ swipes: 5 })
+            }).then(response => response.json())
+              .then(data => alert(data.message));
         });
 
-        document.getElementById('check-updates-button').addEventListener('click', function() {
-            fetch('/check_updates')
-                .then(response => response.json())
-                .then(data => {
-                    let message = '';
-                    if (data.status === 'up-to-date') {
-                        message = 'Your system is up to date.';
-                    } else if (data.status === 'update-available') {
-                        message = 'Updates are available.';
-                    } else {
-                        message = 'Error checking for updates: ' + data.message;
-                    }
-                    document.getElementById('update-status-message').innerText = message;
-                    document.getElementById('update-status-popup').style.display = 'flex';
-                });
+        document.getElementById('dispense-10-swipes').addEventListener('click', function() {
+            totalSwipes += 10;
+            fetch('/dispense_food', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ swipes: 10 })
+            }).then(response => response.json())
+              .then(data => alert(data.message));
         });
 
-        document.getElementById('update-button').addEventListener('click', function() {
-            document.getElementById('updating-popup').style.display = 'flex';
-            
-            fetch('/update_now', { method: 'POST' })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'updated') {
-                        document.getElementById('updating-popup').style.display = 'none';
-                        alert('System updated and rebooting now...');
-                    } else {
-                        document.getElementById('updating-popup').style.display = 'none';
-                        alert('Error updating system: ' + data.message);
-                    }
-                });
+        document.getElementById('finish-button').addEventListener('click', function() {
+            fetch('/finish_calibration', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ totalSwipes: totalSwipes })
+            }).then(response => response.json())
+              .then(data => alert(data.message));
+            document.getElementById('calibrate-popup').style.display = 'none';
         });
 
-        document.getElementById('update-status-ok').addEventListener('click', function() {
-            document.getElementById('update-status-popup').style.display = 'none';
-        });
-
-        document.getElementById('change-hostname-button').addEventListener('click', function() {
-            const newHostname = document.getElementById('hostname-input').value;
-            if (newHostname.match(/^[a-zA-Z0-9_-]+$/)) {
-                fetch('/change_mdns', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ hostname: newHostname })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    alert(data.message);
-                });
-            } else {
-                alert('Invalid hostname. Only letters, numbers, underscores, and hyphens are allowed.');
-            }
-        });
-
-        // Fetch current hostname on page load
-        window.addEventListener('load', function() {
-            fetch('/get_current_hostname')
-                .then(response => response.json())
-                .then(data => {
-                    const hostnameInput = document.getElementById('hostname-input');
-                    hostnameInput.value = data.hostname;
-                });
+        document.getElementById('cancel-button').addEventListener('click', function() {
+            document.getElementById('calibrate-popup').style.display = 'none';
         });
     </script>
 </body>
