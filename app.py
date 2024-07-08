@@ -192,7 +192,7 @@ def update_now():
         updater.reboot_device()
     return jsonify(result)
 
-@app.route('/get_current_hostname', methods['GET'])
+@app.route('/get_current_hostname', methods=['GET'])
 def get_current_hostname():
     current_hostname = socket.gethostname()
     return jsonify({'hostname': current_hostname})
