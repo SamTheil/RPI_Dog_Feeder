@@ -53,8 +53,8 @@ def schedule_meals():
     scheduler.remove_all_jobs()
     for meal in meals:
         meal_time = datetime.strptime(meal['mealTime'], '%H:%M')
-        quantity = int(meal.get('mealQuantity', 1))
-        swipes = swipe_count * quantity
+        quantity = float(meal.get('mealQuantity'))
+        swipes = round(swipe_count * quantity)
         scheduler.add_job(
             dispenser.dispense_food, 
             'cron', 
