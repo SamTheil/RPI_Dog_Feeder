@@ -192,7 +192,7 @@ def update_now():
         updater.reboot_device()
     return jsonify(result)
 
-@app.route('/get_current_hostname', methods=['GET'])
+@app.route('/get_current_hostname', methods['GET'])
 def get_current_hostname():
     current_hostname = socket.gethostname()
     return jsonify({'hostname': current_hostname})
@@ -216,8 +216,15 @@ def finish_calibration():
 
 @app.route('/dispense_food', methods=['POST'])
 def dispense_food():
+    # Check if the request has the required data
+    if not request.json or 'swipes' not in request.json:
+        print("Invalid request, 'swipes' not in request.json")
+        return jsonify({'message': 'Invalid request, swipes parameter missing'}), 400
+
     swipes = request.json.get('swipes')
     print(f"Dispense food endpoint called with {swipes} swipes")
+
+    # Dispense food
     dispenser.dispense_food(swipes, get_food_angle, dispense_food_angle)
     
     # Read the data from the file and update it
