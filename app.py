@@ -225,19 +225,27 @@ def dispense_food():
     print(f"Dispense food endpoint called with {swipes} swipes")
 
     # Dispense food
-    dispenser.dispense_food(swipes, get_food_angle, dispense_food_angle)
-    
+    try:
+        dispenser.dispense_food(swipes, get_food_angle, dispense_food_angle)
+    except Exception as e:
+        print(f"Error dispensing food: {e}")
+        return jsonify({'message': 'Error dispensing food'}), 500
+
     # Read the data from the file and update it
-    data = read_data()
-    print(f"Data read from file: {data}")
+    try:
+        data = read_data()
+        print(f"Data read from file: {data}")
 
-    # Update the recent meal entry
-    data['recent_meal'] = f'Dispensed {swipes} swipes of food at ' + datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    print(f"Updated data: {data}")
+        # Update the recent meal entry
+        data['recent_meal'] = f'Dispensed {swipes} swipes of food at ' + datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        print(f"Updated data: {data}")
 
-    # Write the updated data back to the file
-    write_data(data)
-    print(f"Data after writing to file: {data}")
+        # Write the updated data back to the file
+        write_data(data)
+        print(f"Data after writing to file: {data}")
+    except Exception as e:
+        print(f"Error updating data file: {e}")
+        return jsonify({'message': 'Error updating data file'}), 500
 
     return jsonify({'message': f'Dispensed {swipes} swipes of food'})
 
