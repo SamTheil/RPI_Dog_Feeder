@@ -1,5 +1,7 @@
 {
-  "food_dispense_angle": 0,
+  "meals": [],
   "food_retrieve_angle": 0,
-  "meals": []
+  "food_dispense_angle": 1,
+  "swipe_count": 10,
+  "recent_meal": "No meal dispensed yet."
 }

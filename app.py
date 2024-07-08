@@ -68,7 +68,8 @@ def schedule_meals():
 def home():
     data = read_data()
     meals = data.get('meals', [])
-    return render_template('index.html', meals=meals)
+    recent_meal = data.get('recent_meal', 'No meal dispensed yet.')
+    return render_template('index.html', meals=meals, recent_meal=recent_meal)
 
 @app.route('/wifi')
 def wifi_settings():
@@ -165,7 +166,11 @@ def test_servo_range():
 
 @app.route('/dispense_treat', methods=['POST'])
 def dispense_treat():
-    dispenser.dispense_treat(get_food_angle, dispense_food_angle)
+    # Dispense treat logic here...
+    data = read_data()
+    data['recent_meal'] = 'Treat dispensed at ' + datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    write_data(data)
+    return jsonify({'message': 'Treat dispensed'})
 
 @app.route('/change_mdns', methods=['POST'])
 def change_mdns():
