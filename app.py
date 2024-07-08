@@ -9,6 +9,7 @@ from GitHubUpdater import GitHubUpdater
 import socket
 from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import datetime, timedelta
+from math import ceil
 
 time.sleep(5)
 
@@ -78,8 +79,8 @@ def schedule_meals():
     scheduler.remove_all_jobs()
     for meal in meals:
         meal_time = datetime.strptime(meal['mealTime'], '%H:%M')
-        quantity = meal.get('mealQuantity')
-        swipes = round(swipe_count * quantity)
+        quantity = float(meal.get('mealQuantity', 1))  # Allow float values
+        swipes = round(swipe_count * quantity)  # Round the swipes
         scheduler.add_job(
             lambda swipes=swipes: (dispenser.dispense_food(swipes, get_food_angle, dispense_food_angle), update_recent_meal(swipes)),
             'cron', 
