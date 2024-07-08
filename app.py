@@ -47,6 +47,11 @@ updater = GitHubUpdater(os.path.dirname(os.path.abspath(__file__)))
 scheduler = BackgroundScheduler()
 scheduler.start()
 
+def update_recent_meal(swipes):
+    data = read_data()
+    data['recent_meal'] = f'Dispensed {swipes} swipes of food at ' + datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    write_data(data)
+
 def schedule_meals():
     data = read_data()
     meals = data.get('meals', [])
@@ -57,11 +62,10 @@ def schedule_meals():
         quantity = int(meal.get('mealQuantity', 1))
         swipes = swipe_count * quantity
         scheduler.add_job(
-            dispenser.dispense_food, 
+            lambda swipes=swipes: (dispenser.dispense_food(swipes, get_food_angle, dispense_food_angle), update_recent_meal(swipes)),
             'cron', 
             hour=meal_time.hour, 
             minute=meal_time.minute, 
-            args=[swipes, get_food_angle, dispense_food_angle], 
             id=f"{meal['mealName']}-{meal['mealTime']}"
         )
 
