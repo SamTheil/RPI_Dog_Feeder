@@ -219,9 +219,19 @@ def dispense_food():
     swipes = request.json.get('swipes')
     print(f"Dispense food endpoint called with {swipes} swipes")
     dispenser.dispense_food(swipes, get_food_angle, dispense_food_angle)
+    
+    # Read the data from the file and update it
     data = read_data()
+    print(f"Data read from file: {data}")
+
+    # Update the recent meal entry
     data['recent_meal'] = f'Dispensed {swipes} swipes of food at ' + datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    print(f"Updated data: {data}")
+
+    # Write the updated data back to the file
     write_data(data)
+    print(f"Data after writing to file: {data}")
+
     return jsonify({'message': f'Dispensed {swipes} swipes of food'})
 
 if __name__ == '__main__':
