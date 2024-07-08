@@ -224,6 +224,7 @@
             .then(data => {
                 console.log('Treat dispensed: ', data.message);
                 alert(data.message);
+                location.reload()
             });
         });
 
