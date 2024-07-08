@@ -49,11 +49,7 @@ scheduler.start()
 
 def format_recent_meal_message(swipes, meal_type="food"):
     now = datetime.now()
-    time_str = now.strftime('%I:%M%p').lstrip('0')
-    if now.strftime('%p') == 'PM' and time_str.endswith('M'):
-        time_str = time_str[:-1] + ' PM'
-    elif now.strftime('%p') == 'AM' and time_str.endswith('M'):
-        time_str = time_str[:-1] + ' AM'
+    time_str = now.strftime('%I:%M %p').lstrip('0')
 
     today = now.replace(hour=0, minute=0, second=0, microsecond=0)
     yesterday = today - timedelta(days=1)
