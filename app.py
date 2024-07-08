@@ -222,7 +222,7 @@ def dispense_food():
         return jsonify({'message': 'Invalid request, swipes parameter missing'}), 400
 
     swipes = request.json.get('swipes')
-    print(f"Dispense food endpoint called with {swipes} swipes")
+    print(f"Dispense food endpoint call with {swipes} swipes")
 
     # Dispense food
     try:
