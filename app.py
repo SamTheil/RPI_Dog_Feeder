@@ -36,6 +36,7 @@ def read_data():
 def write_data(data):
     with open(data_path, 'w') as data_file:
         json.dump(data, data_file, indent=4)
+    print(f"Data written to {data_path}: {data}")
 
 data = read_data()
 get_food_angle = data['food_retrieve_angle']
@@ -53,8 +54,8 @@ def schedule_meals():
     scheduler.remove_all_jobs()
     for meal in meals:
         meal_time = datetime.strptime(meal['mealTime'], '%H:%M')
-        quantity = float(meal.get('mealQuantity'))
-        swipes = round(swipe_count * quantity)
+        quantity = int(meal.get('mealQuantity', 1))
+        swipes = swipe_count * quantity
         scheduler.add_job(
             dispenser.dispense_food, 
             'cron', 
@@ -167,6 +168,7 @@ def test_servo_range():
 @app.route('/dispense_treat', methods=['POST'])
 def dispense_treat():
     # Dispense treat logic here...
+    print("Dispense treat endpoint called")
     dispenser.dispense_treat(get_food_angle, dispense_food_angle)
     data = read_data()
     data['recent_meal'] = 'Treat dispensed at ' + datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -216,6 +218,7 @@ def finish_calibration():
 @app.route('/dispense_food', methods=['POST'])
 def dispense_food():
     swipes = request.json.get('swipes')
+    print(f"Dispense food endpoint called with {swipes} swipes")
     dispenser.dispense_food(swipes, get_food_angle, dispense_food_angle)
     data = read_data()
     data['recent_meal'] = f'Dispensed {swipes} swipes of food at ' + datetime.now().strftime('%Y-%m-%d %H:%M:%S')
