@@ -217,12 +217,13 @@
         }
 
         document.getElementById('dispense_treat').addEventListener('click', function() {
-            fetch('/test_servo_range', {
+            fetch('/dispense_treat', {
                 method: 'POST'
             })
             .then(response => response.json())
             .then(data => {
-                console.log('Servo range test completed.');
+                console.log('Treat dispensed: ', data.message);
+                alert(data.message);
             });
         });
 

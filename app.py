@@ -167,7 +167,6 @@ def test_servo_range():
 
 @app.route('/dispense_treat', methods=['POST'])
 def dispense_treat():
-    # Dispense treat logic here...
     print("Dispense treat endpoint called")
     dispenser.dispense_treat(get_food_angle, dispense_food_angle)
     data = read_data()
