@@ -233,8 +233,9 @@ def update_meal_schedule():
 @app.route('/finish_calibration', methods=['POST'])
 def finish_calibration():
     total_swipes = request.json.get('totalSwipes')
+    quantity_in_cups = request.json.get('quantityInCups')
     data = read_data()
-    data['swipe_count'] = total_swipes
+    data['swipe_count'] = total_swipes / quantity_in_cups
     write_data(data)
     return jsonify({'message': 'Calibration completed successfully'})
 

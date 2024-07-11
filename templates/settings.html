@@ -185,9 +185,11 @@
 
     <script>
         let totalSwipes = 0;
+        let quantityInCups = 1; // Default value, to be updated by user input
 
         document.getElementById('calibrate-button').addEventListener('click', function() {
             totalSwipes = 0;
+            quantityInCups = prompt("Enter the quantity in cups for the calibration cup:", "1");
             document.getElementById('calibrate-popup').style.display = 'flex';
         });
 
@@ -233,7 +235,7 @@
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ totalSwipes: totalSwipes })
+                body: JSON.stringify({ totalSwipes: totalSwipes, quantityInCups: quantityInCups })
             }).then(response => response.json())
               .then(data => alert(data.message));
             document.getElementById('calibrate-popup').style.display = 'none';
