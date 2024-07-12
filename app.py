@@ -232,12 +232,25 @@ def update_meal_schedule():
 
 @app.route('/finish_calibration', methods=['POST'])
 def finish_calibration():
-    total_swipes = request.json.get('totalSwipes')
-    quantity_in_cups = request.json.get('quantityInCups')
-    data = read_data()
-    data['swipe_count'] = total_swipes / quantity_in_cups
-    write_data(data)
-    return jsonify({'message': 'Calibration completed successfully'})
+    try:
+        # Log the received data
+        total_swipes = request.json.get('totalSwipes')
+        quantity_in_cups = request.json.get('quantityInCups')
+        print(f"Received totalSwipes: {total_swipes}, quantityInCups: {quantity_in_cups}")
+
+        # Ensure the received data is valid
+        if total_swipes is None or quantity_in_cups is None:
+            return jsonify({'message': 'Invalid data received'}), 400
+
+        # Update the JSON data
+        data = read_data()
+        data['swipe_count'] = total_swipes / quantity_in_cups
+        write_data(data)
+        
+        return jsonify({'message': 'Calibration completed successfully'})
+    except Exception as e:
+        print(f"Error in finish_calibration: {e}")
+        return jsonify({'message': 'Error during calibration'}), 500
 
 @app.route('/dispense_food', methods=['POST'])
 def dispense_food():
